@@ -1,60 +1,915 @@
 ﻿@model IEnumerable<EventEaseBookingSystem.Models.Event>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Events";
 }
 
-<h1>Index</h1>
+<style>
+    body {
+        background: linear-gradient(to bottom right, #e6f0ff, #f8f9fa);
+        font-family: 'Segoe UI', Arial, sans-serif;
+        color: #333;
+        overflow-x: hidden;
+    }
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.EventName)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.StartDate)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.EndDate)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Description)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Venue.VenueName)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
-            <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => item.EventName)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.StartDate)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.EndDate)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Description)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Venue.VenueName)
-                </td>
-                <td>
-                    <a asp-action="Edit" asp-route-id="@item.EventId">Edit</a> |
-                    <a asp-action="Details" asp-route-id="@item.EventId">Details</a> |
-                    <a asp-action="Delete" asp-route-id="@item.EventId">Delete</a>
-                </td>
-            </tr>
+    .events-page {
+        max-width: 1200px;
+        margin: 45px auto;
+        padding: 0 20px;
+    }
+
+    .events-card {
+        background: #ffffff;
+        border-radius: 16px;
+        box-shadow: 0 8px 25px rgba(0, 90, 158, 0.10);
+        border: 1px solid #e3eaf5;
+        overflow: hidden;
+    }
+
+    .events-header {
+        background: linear-gradient(135deg, #0078d7, #005a9e);
+        color: white;
+        padding: 30px 35px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 20px;
+    }
+
+    .header-content {
+        display: flex;
+        align-items: center;
+        gap: 18px;
+    }
+
+    .event-icon {
+        width: 52px;
+        height: 52px;
+        background: rgba(255, 255, 255, 0.18);
+        border: 1px solid rgba(255, 255, 255, 0.35);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+    }
+
+    .events-header h1 {
+        margin: 0;
+        font-size: 30px;
+        font-weight: 600;
+    }
+
+    .events-header p {
+        margin: 5px 0 0;
+        font-size: 15px;
+        opacity: 0.9;
+    }
+
+    .create-event-btn {
+        background: white;
+        color: #005a9e;
+        border: none;
+        padding: 11px 20px;
+        border-radius: 8px;
+        font-weight: 600;
+        text-decoration: none;
+        white-space: nowrap;
+        transition: all 0.2s ease;
+    }
+
+        .create-event-btn:hover {
+            background: #eef6ff;
+            color: #004b83;
+            transform: translateY(-1px);
         }
-    </tbody>
-</table>
+
+    .events-content {
+        padding: 30px 35px 35px;
+    }
+
+    .alert {
+        border-radius: 10px;
+        border: none;
+        margin-bottom: 22px;
+    }
+
+    .alert-danger {
+        background: #fff1f1;
+        color: #9b2c2c;
+        border-left: 4px solid #dc3545;
+    }
+
+    .alert-success {
+        background: #eefaf3;
+        color: #26734d;
+        border-left: 4px solid #198754;
+    }
+
+    .alert-warning {
+        background: #fff8e8;
+        color: #8a6500;
+        border-left: 4px solid #ffc107;
+    }
+
+    .search-panel {
+        background: #f8fbff;
+        border: 1px solid #e1ebf7;
+        border-radius: 12px;
+        padding: 22px;
+        margin-bottom: 28px;
+    }
+
+    .search-title {
+        color: #005a9e;
+        font-size: 18px;
+        font-weight: 600;
+        margin-bottom: 16px;
+    }
+
+    .search-grid {
+        display: grid;
+        grid-template-columns: 2fr 1fr 1fr auto;
+        gap: 12px;
+        align-items: end;
+    }
+
+    .form-label-custom {
+        display: block;
+        font-size: 13px;
+        font-weight: 600;
+        color: #5c6f82;
+        margin-bottom: 6px;
+    }
+
+    .form-control {
+        border: 1px solid #ccd9e6;
+        border-radius: 8px;
+        padding: 10px 12px;
+        min-height: 43px;
+    }
+
+        .form-control:focus {
+            border-color: #0078d7;
+            box-shadow: 0 0 0 0.15rem rgba(0, 120, 215, 0.12);
+        }
+
+    .exact-match {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-top: 12px;
+        color: #56697c;
+        font-size: 14px;
+    }
+
+        .exact-match input {
+            width: 16px;
+            height: 16px;
+            accent-color: #0078d7;
+        }
+
+    .search-btn {
+        background: #0078d7;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        padding: 10px 22px;
+        min-height: 43px;
+        font-weight: 600;
+        transition: all 0.2s ease;
+    }
+
+        .search-btn:hover {
+            background: #005a9e;
+        }
+
+    .table-section {
+        border: 1px solid #e1e8f0;
+        border-radius: 12px;
+        overflow: hidden;
+    }
+
+    .table-responsive {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .events-table {
+        width: 100%;
+        margin: 0;
+        border-collapse: collapse;
+        min-width: 1050px;
+    }
+
+        .events-table thead {
+            background: #f1f6fb;
+        }
+
+            .events-table thead th {
+                color: #4d6378;
+                font-size: 13px;
+                font-weight: 600;
+                text-transform: uppercase;
+                letter-spacing: 0.3px;
+                padding: 15px 14px;
+                border-bottom: 1px solid #dce6f0;
+                white-space: nowrap;
+            }
+
+        .events-table tbody td {
+            padding: 16px 14px;
+            color: #3f5162;
+            font-size: 14px;
+            border-bottom: 1px solid #edf1f5;
+            vertical-align: middle;
+        }
+
+        .events-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .events-table tbody tr:hover {
+            background: #f8fbff;
+        }
+
+    .event-name {
+        color: #005a9e;
+        font-weight: 600;
+    }
+
+    .date-text {
+        white-space: nowrap;
+        color: #536779;
+    }
+
+    .description-text {
+        max-width: 230px;
+        line-height: 1.45;
+    }
+
+    .venue-badge {
+        display: inline-block;
+        background: #eef6ff;
+        color: #005a9e;
+        border: 1px solid #d7e8f8;
+        border-radius: 20px;
+        padding: 6px 11px;
+        font-size: 13px;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    .no-venue {
+        color: #888;
+        font-style: italic;
+    }
+
+    /* Event image thumbnail */
+    .event-image-cell {
+        width: 110px;
+    }
+
+    .event-thumbnail {
+        display: block;
+        width: 85px;
+        height: 65px;
+        object-fit: cover;
+        border-radius: 8px;
+        border: 1px solid #d7e3ef;
+        box-shadow: 0 3px 8px rgba(0, 90, 158, 0.08);
+    }
+
+    .no-image {
+        width: 85px;
+        height: 65px;
+        background: #f1f4f8;
+        border: 1px dashed #cbd8e6;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #9ab1c7;
+        font-size: 22px;
+    }
+
+    .action-buttons {
+        display: flex;
+        justify-content: center;
+        gap: 7px;
+        white-space: nowrap;
+    }
+
+    .action-btn {
+        border-radius: 7px;
+        padding: 7px 12px;
+        font-size: 13px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.2s ease;
+    }
+
+    .edit-btn {
+        color: #0078d7;
+        border: 1px solid #b9d8f3;
+        background: #f7fbff;
+    }
+
+        .edit-btn:hover {
+            background: #e8f4ff;
+            color: #005a9e;
+        }
+
+    .details-btn {
+        color: #536779;
+        border: 1px solid #cfd9e3;
+        background: white;
+    }
+
+        .details-btn:hover {
+            background: #f2f6fa;
+            color: #33495d;
+        }
+
+    .delete-btn {
+        color: #c0392b;
+        border: 1px solid #f0c5c0;
+        background: #fffafa;
+    }
+
+        .delete-btn:hover {
+            background: #fff0ee;
+            color: #a93226;
+        }
+
+    .empty-state {
+        text-align: center;
+        padding: 45px 20px !important;
+        color: #777;
+    }
+
+        .empty-state i {
+            font-size: 34px;
+            color: #9ab1c7;
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        .empty-state strong {
+            display: block;
+            color: #536779;
+            font-size: 16px;
+            margin-bottom: 5px;
+        }
+
+    @@media (max-width: 900px) {
+
+        .events-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .search-grid {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .search-button-container {
+            grid-column: span 2;
+        }
+    }
+
+    @@media (max-width: 600px) {
+
+        .events-page {
+            margin: 25px auto;
+            padding: 0 12px;
+        }
+
+        .events-header {
+            padding: 25px;
+        }
+
+            .events-header h1 {
+                font-size: 25px;
+            }
+
+        .events-content {
+            padding: 22px;
+        }
+
+        .search-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .search-button-container {
+            grid-column: auto;
+        }
+
+        .search-btn {
+            width: 100%;
+        }
+
+        .create-event-btn {
+            width: 100%;
+            text-align: center;
+        }
+    }
+</style>
+
+
+<div class="events-page">
+
+    <div class="events-card">
+
+        <!-- Page Header -->
+        <div class="events-header">
+
+            <div class="header-content">
+
+                <div class="event-icon">
+                    <i class="bi bi-calendar-event"></i>
+                </div>
+
+                <div>
+
+                    <h1>Events</h1>
+
+                    <p>
+                        Manage and view all scheduled events.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <a asp-action="Create"
+               class="create-event-btn">
+
+                <i class="bi bi-plus-lg"></i>
+
+                Create New Event
+
+            </a>
+
+        </div>
+
+
+        <div class="events-content">
+
+            <!-- Error Message -->
+            @if (TempData["ErrorMessage"] != null)
+            {
+                <div class="alert alert-danger alert-dismissible fade show"
+                     role="alert"
+                     id="errorAlert">
+
+                    <strong>
+                        Unable to complete the request.
+                    </strong>
+
+                    <br />
+
+                    @TempData["ErrorMessage"]
+
+                    <button type="button"
+                            class="btn-close"
+                            data-bs-dismiss="alert"
+                            aria-label="Close">
+                    </button>
+
+                </div>
+            }
+
+
+            <!-- Success Message -->
+            @if (TempData["SuccessMessage"] != null)
+            {
+                var message = TempData["SuccessMessage"]?.ToString();
+
+                var alertClass = "alert-success";
+
+                if (!string.IsNullOrWhiteSpace(message) &&
+                message.Contains("deleted",
+                StringComparison.OrdinalIgnoreCase))
+                {
+                    alertClass = "alert-danger";
+                }
+
+                <div class="alert @alertClass alert-dismissible fade show"
+                     role="alert"
+                     id="successAlert">
+
+                    @message
+
+                    <button type="button"
+                            class="btn-close"
+                            data-bs-dismiss="alert"
+                            aria-label="Close">
+                    </button>
+
+                </div>
+            }
+
+
+            <!-- Warning Message -->
+            @if (ViewBag.Message != null)
+            {
+                <div class="alert alert-warning">
+
+                    @ViewBag.Message
+
+                </div>
+            }
+
+
+            <!-- Search and Filter Panel -->
+            <div class="search-panel">
+
+                <div class="search-title">
+
+                    <i class="bi bi-search"></i>
+
+                    Search and Filter Events
+
+                </div>
+
+
+                <form asp-controller="Events"
+                      asp-action="Index"
+                      method="get">
+
+                    <div class="search-grid">
+
+                        <!-- Search -->
+                        <div>
+
+                            <label class="form-label-custom">
+                                Search
+                            </label>
+
+                            <input type="text"
+                                   name="searchString"
+                                   value="@Context.Request.Query["searchString"]"
+                                   class="form-control"
+                                   placeholder="Search by name, description, or venue" />
+
+                        </div>
+
+
+                        <!-- Start Date -->
+                        <div>
+
+                            <label class="form-label-custom">
+                                Start Date
+                            </label>
+
+                            <input type="date"
+                                   name="startDate"
+                                   value="@Context.Request.Query["startDate"]"
+                                   class="form-control" />
+
+                        </div>
+
+
+                        <!-- End Date -->
+                        <div>
+
+                            <label class="form-label-custom">
+                                End Date
+                            </label>
+
+                            <input type="date"
+                                   name="endDate"
+                                   value="@Context.Request.Query["endDate"]"
+                                   class="form-control" />
+
+                        </div>
+
+
+                        <!-- Search Button -->
+                        <div class="search-button-container">
+
+                            <button type="submit"
+                                    class="search-btn">
+
+                                <i class="bi bi-search"></i>
+
+                                Search
+
+                            </button>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- Exact Match -->
+                    <div class="exact-match">
+
+                        <input type="checkbox"
+                               id="exactMatch"
+                               name="exactMatch"
+                               value="true"
+                               @(Context.Request.Query["exactMatch"] == "true"
+                                                              ? "checked"
+                                                              : "") />
+
+                        <label for="exactMatch">
+                            Exact date match
+                        </label>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+
+            <!-- Events Table -->
+            <div class="table-section">
+
+                <div class="table-responsive">
+
+                    <table class="events-table">
+
+                        <thead>
+
+                            <tr>
+
+                                <th>
+                                    Image
+                                </th>
+
+                                <th>
+                                    Event Name
+                                </th>
+
+                                <th>
+                                    Start Date
+                                </th>
+
+                                <th>
+                                    End Date
+                                </th>
+
+                                <th>
+                                    Description
+                                </th>
+
+                                <th>
+                                    Venue
+                                </th>
+
+                                <th>
+                                    Actions
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody>
+
+                            @if (Model != null && Model.Any())
+                            {
+                                foreach (var item in Model)
+                                {
+                                    <tr>
+
+                                        <!-- Event Image -->
+                                        <td class="event-image-cell">
+
+                                            @if (!string.IsNullOrWhiteSpace(item.ImageUrl))
+                                            {
+                                                <img src="@item.ImageUrl"
+                                                     alt="@item.EventName"
+                                                     class="event-thumbnail" />
+                                            }
+                                            else
+                                            {
+                                                <div class="no-image"
+                                                     title="No event image">
+
+                                                    <i class="bi bi-image"></i>
+
+                                                </div>
+                                            }
+
+                                        </td>
+
+
+                                        <!-- Event Name -->
+                                        <td>
+
+                                            <span class="event-name">
+                                                @item.EventName
+                                            </span>
+
+                                        </td>
+
+
+                                        <!-- Start Date -->
+                                        <td>
+
+                                            <span class="date-text">
+                                                @item.StartDate.ToString("dd MMM yyyy")
+                                            </span>
+
+                                        </td>
+
+
+                                        <!-- End Date -->
+                                        <td>
+
+                                            <span class="date-text">
+                                                @item.EndDate.ToString("dd MMM yyyy")
+                                            </span>
+
+                                        </td>
+
+
+                                        <!-- Description -->
+                                        <td>
+
+                                            <div class="description-text">
+                                                @item.Description
+                                            </div>
+
+                                        </td>
+
+
+                                        <!-- Venue -->
+                                        <td>
+
+                                            @if (item.Venue != null)
+                                            {
+                                                <span class="venue-badge">
+
+                                                    <i class="bi bi-building"></i>
+
+                                                    @item.Venue.VenueName
+
+                                                </span>
+                                            }
+                                            else
+                                            {
+                                                <span class="no-venue">
+                                                    No venue assigned
+                                                </span>
+                                            }
+
+                                        </td>
+
+
+                                        <!-- Actions -->
+                                        <td>
+
+                                            <div class="action-buttons">
+
+                                                <a asp-action="Edit"
+                                                   asp-route-id="@item.EventId"
+                                                   class="action-btn edit-btn">
+
+                                                    <i class="bi bi-pencil"></i>
+
+                                                    Edit
+
+                                                </a>
+
+
+                                                <a asp-action="Details"
+                                                   asp-route-id="@item.EventId"
+                                                   class="action-btn details-btn">
+
+                                                    <i class="bi bi-eye"></i>
+
+                                                    Details
+
+                                                </a>
+
+
+                                                <a asp-action="Delete"
+                                                   asp-route-id="@item.EventId"
+                                                   class="action-btn delete-btn">
+
+                                                    <i class="bi bi-trash"></i>
+
+                                                    Delete
+
+                                                </a>
+
+                                            </div>
+
+                                        </td>
+
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+
+                                    <td colspan="7"
+                                        class="empty-state">
+
+                                        <i class="bi bi-calendar-x"></i>
+
+                                        <strong>
+                                            No events found
+                                        </strong>
+
+                                        Try changing your search or date filters.
+
+                                    </td>
+
+                                </tr>
+                            }
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+@section Scripts {
+
+    <script>
+
+        document.addEventListener('DOMContentLoaded', function () {
+
+            // Fade out the success message after five seconds.
+            var successAlert =
+                document.getElementById('successAlert');
+
+            if (successAlert) {
+
+                setTimeout(function () {
+
+                    successAlert.style.transition =
+                        "opacity 0.5s ease, transform 0.5s ease";
+
+                    successAlert.style.opacity = "0";
+
+                    successAlert.style.transform =
+                        "translateY(-20px)";
+
+                    setTimeout(function () {
+
+                        if (successAlert) {
+                            successAlert.remove();
+                        }
+
+                    }, 500);
+
+                }, 5000);
+            }
+
+
+            // Fade out the error message after seven seconds.
+            var errorAlert =
+                document.getElementById('errorAlert');
+
+            if (errorAlert) {
+
+                setTimeout(function () {
+
+                    errorAlert.style.transition =
+                        "opacity 0.5s ease, transform 0.5s ease";
+
+                    errorAlert.style.opacity = "0";
+
+                    errorAlert.style.transform =
+                        "translateY(-20px)";
+
+                    setTimeout(function () {
+
+                        if (errorAlert) {
+                            errorAlert.remove();
+                        }
+
+                    }, 500);
+
+                }, 7000);
+            }
+
+        });
+
+    </script>
+
+
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+}

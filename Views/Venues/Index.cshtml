@@ -4,40 +4,1026 @@
     ViewData["Title"] = "Venues";
 }
 
-<h1>Venues</h1>
+<style>
+    body {
+        background: linear-gradient(to bottom right, #e6f0ff, #f8f9fa);
+        font-family: 'Segoe UI', Arial, sans-serif;
+        color: #333;
+        overflow-x: hidden;
+    }
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
+    .venues-page {
+        max-width: 1200px;
+        margin: 45px auto;
+        padding: 0 20px;
+    }
 
-<table class="table table-striped">
-    <thead>
-        <tr>
-            <th>@Html.DisplayNameFor(model => model.VenueName)</th>
-            <th>@Html.DisplayNameFor(model => model.Location)</th>
-            <th>@Html.DisplayNameFor(model => model.Capacity)</th>
-            <th>Image URL</th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
-            <tr>
-                <td>@Html.DisplayFor(modelItem => item.VenueName)</td>
-                <td>@Html.DisplayFor(modelItem => item.Location)</td>
-                <td>@Html.DisplayFor(modelItem => item.Capacity)</td>
-                <td>
-                    <a href="@Url.Content("~/images/" + item.ImageUrl)" target="_blank">
-                        @Url.Content("~/images/" + item.ImageUrl)
-                    </a>
-                </td>
-                <td>
-                    <a asp-action="Edit" asp-route-id="@item.VenueId">Edit</a> |
-                    <a asp-action="Details" asp-route-id="@item.VenueId">Details</a> |
-                    <a asp-action="Delete" asp-route-id="@item.VenueId">Delete</a>
-                </td>
-            </tr>
+    .venues-card {
+        background: #ffffff;
+        border-radius: 16px;
+        box-shadow: 0 8px 25px rgba(0, 90, 158, 0.10);
+        border: 1px solid #e3eaf5;
+        overflow: hidden;
+    }
+
+    .venues-header {
+        background: linear-gradient(135deg, #0078d7, #005a9e);
+        color: white;
+        padding: 30px 35px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 20px;
+    }
+
+    .header-content {
+        display: flex;
+        align-items: center;
+        gap: 18px;
+    }
+
+    .venue-icon {
+        width: 52px;
+        height: 52px;
+        background: rgba(255, 255, 255, 0.18);
+        border: 1px solid rgba(255, 255, 255, 0.35);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 26px;
+    }
+
+    .venues-header h1 {
+        margin: 0;
+        font-size: 30px;
+        font-weight: 600;
+    }
+
+    .venues-header p {
+        margin: 5px 0 0;
+        font-size: 15px;
+        opacity: 0.9;
+    }
+
+    .create-venue-btn {
+        background: white;
+        color: #005a9e;
+        border: none;
+        padding: 11px 20px;
+        border-radius: 8px;
+        font-weight: 600;
+        text-decoration: none;
+        white-space: nowrap;
+        transition: all 0.2s ease;
+    }
+
+        .create-venue-btn:hover {
+            background: #eef6ff;
+            color: #004b83;
+            transform: translateY(-1px);
         }
-    </tbody>
-</table>
+
+    .venues-content {
+        padding: 30px 35px 35px;
+    }
+
+    .alert {
+        border-radius: 10px;
+        border: none;
+        margin-bottom: 22px;
+    }
+
+    .alert-danger {
+        background: #fff1f1;
+        color: #9b2c2c;
+        border-left: 4px solid #dc3545;
+    }
+
+    .alert-success {
+        background: #eefaf3;
+        color: #26734d;
+        border-left: 4px solid #198754;
+    }
+
+    .alert-warning {
+        background: #fff8e8;
+        color: #8a6500;
+        border-left: 4px solid #ffc107;
+    }
+
+    .search-panel {
+        background: #f8fbff;
+        border: 1px solid #e1ebf7;
+        border-radius: 12px;
+        padding: 22px;
+        margin-bottom: 22px;
+    }
+
+    .search-title {
+        color: #005a9e;
+        font-size: 18px;
+        font-weight: 600;
+        margin-bottom: 17px;
+    }
+
+    .search-grid {
+        display: grid;
+        grid-template-columns: 2fr 1fr 1fr auto;
+        gap: 12px;
+        align-items: end;
+    }
+
+    .form-label-custom {
+        display: block;
+        font-size: 13px;
+        font-weight: 600;
+        color: #5c6f82;
+        margin-bottom: 6px;
+    }
+
+    .form-control {
+        border: 1px solid #ccd9e6;
+        border-radius: 8px;
+        padding: 10px 12px;
+        min-height: 43px;
+    }
+
+        .form-control:focus {
+            border-color: #0078d7;
+            box-shadow: 0 0 0 0.15rem rgba(0, 120, 215, 0.12);
+        }
+
+    .exact-match {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-top: 12px;
+        color: #56697c;
+        font-size: 14px;
+    }
+
+        .exact-match input {
+            width: 16px;
+            height: 16px;
+            accent-color: #0078d7;
+        }
+
+    .search-btn {
+        background: #0078d7;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        padding: 10px 22px;
+        min-height: 43px;
+        font-weight: 600;
+        transition: all 0.2s ease;
+    }
+
+        .search-btn:hover {
+            background: #005a9e;
+        }
+
+    .view-controls {
+        display: flex;
+        justify-content: flex-end;
+        margin-bottom: 18px;
+    }
+
+    .view-toggle {
+        display: inline-flex;
+        background: #f1f6fb;
+        border: 1px solid #d9e4ef;
+        border-radius: 9px;
+        padding: 4px;
+    }
+
+        .view-toggle button {
+            border: none;
+            background: transparent;
+            color: #5d7185;
+            padding: 8px 15px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+            .view-toggle button.active {
+                background: white;
+                color: #005a9e;
+                box-shadow: 0 2px 6px rgba(0, 90, 158, 0.10);
+            }
+
+    .table-section {
+        border: 1px solid #e1e8f0;
+        border-radius: 12px;
+        overflow: hidden;
+    }
+
+    .table-responsive {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .venues-table {
+        width: 100%;
+        min-width: 850px;
+        margin: 0;
+        border-collapse: collapse;
+    }
+
+        .venues-table thead {
+            background: #f1f6fb;
+        }
+
+            .venues-table thead th {
+                color: #4d6378;
+                font-size: 13px;
+                font-weight: 600;
+                text-transform: uppercase;
+                letter-spacing: 0.3px;
+                padding: 15px 14px;
+                border-bottom: 1px solid #dce6f0;
+                white-space: nowrap;
+            }
+
+        .venues-table tbody td {
+            padding: 15px 14px;
+            color: #3f5162;
+            font-size: 14px;
+            border-bottom: 1px solid #edf1f5;
+            vertical-align: middle;
+        }
+
+        .venues-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .venues-table tbody tr:hover {
+            background: #f8fbff;
+        }
+
+    .venue-name {
+        color: #005a9e;
+        font-weight: 600;
+    }
+
+    .location-text {
+        color: #5c6f82;
+    }
+
+    .capacity-badge {
+        display: inline-block;
+        background: #eef6ff;
+        color: #005a9e;
+        border: 1px solid #d7e8f8;
+        border-radius: 20px;
+        padding: 6px 11px;
+        font-size: 13px;
+        font-weight: 600;
+    }
+
+    .rate-text {
+        color: #34495e;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    .venue-thumbnail {
+        width: 85px;
+        height: 62px;
+        object-fit: cover;
+        border-radius: 8px;
+        border: 1px solid #d9e4ef;
+        display: block;
+        margin: auto;
+    }
+
+    .no-image {
+        color: #a33;
+        font-size: 13px;
+        font-style: italic;
+    }
+
+    .action-buttons {
+        display: flex;
+        justify-content: center;
+        gap: 7px;
+        white-space: nowrap;
+    }
+
+    .action-btn {
+        border-radius: 7px;
+        padding: 7px 12px;
+        font-size: 13px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.2s ease;
+    }
+
+    .edit-btn {
+        color: #0078d7;
+        border: 1px solid #b9d8f3;
+        background: #f7fbff;
+    }
+
+        .edit-btn:hover {
+            background: #e8f4ff;
+            color: #005a9e;
+        }
+
+    .details-btn {
+        color: #536779;
+        border: 1px solid #cfd9e3;
+        background: white;
+    }
+
+        .details-btn:hover {
+            background: #f2f6fa;
+            color: #33495d;
+        }
+
+    .delete-btn {
+        color: #c0392b;
+        border: 1px solid #f0c5c0;
+        background: #fffafa;
+    }
+
+        .delete-btn:hover {
+            background: #fff0ee;
+            color: #a93226;
+        }
+
+    .empty-state {
+        text-align: center;
+        padding: 45px 20px !important;
+        color: #777;
+    }
+
+        .empty-state i {
+            font-size: 34px;
+            color: #9ab1c7;
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        .empty-state strong {
+            display: block;
+            color: #536779;
+            font-size: 16px;
+            margin-bottom: 5px;
+        }
+
+    .venue-card-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 22px;
+    }
+
+    .venue-display-card {
+        background: white;
+        border: 1px solid #e1e8f0;
+        border-radius: 13px;
+        overflow: hidden;
+        box-shadow: 0 5px 16px rgba(0, 90, 158, 0.07);
+        transition: all 0.2s ease;
+    }
+
+        .venue-display-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 9px 22px rgba(0, 90, 158, 0.12);
+        }
+
+    .card-image-wrapper {
+        height: 190px;
+        background: #f1f6fb;
+        overflow: hidden;
+    }
+
+    .card-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .card-no-image {
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #8799aa;
+        font-size: 14px;
+    }
+
+    .venue-display-body {
+        padding: 20px;
+    }
+
+    .venue-display-name {
+        color: #005a9e;
+        font-size: 19px;
+        font-weight: 600;
+        margin-bottom: 10px;
+    }
+
+    .venue-detail {
+        color: #5d7185;
+        font-size: 14px;
+        margin-bottom: 7px;
+    }
+
+        .venue-detail i {
+            width: 20px;
+            color: #0078d7;
+        }
+
+    .card-actions {
+        display: flex;
+        gap: 7px;
+        margin-top: 17px;
+        padding-top: 15px;
+        border-top: 1px solid #edf1f5;
+    }
+
+        .card-actions .action-btn {
+            flex: 1;
+            text-align: center;
+        }
+
+    @@media (max-width: 950px) {
+        .search-grid {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .search-button-container {
+            grid-column: span 2;
+        }
+
+        .venue-card-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @@media (max-width: 650px) {
+        .venues-page {
+            margin: 25px auto;
+            padding: 0 12px;
+        }
+
+        .venues-header {
+            padding: 25px;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+            .venues-header h1 {
+                font-size: 25px;
+            }
+
+        .create-venue-btn {
+            width: 100%;
+            text-align: center;
+        }
+
+        .venues-content {
+            padding: 22px;
+        }
+
+        .search-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .search-button-container {
+            grid-column: auto;
+        }
+
+        .search-btn {
+            width: 100%;
+        }
+
+        .view-controls {
+            justify-content: stretch;
+        }
+
+        .view-toggle {
+            width: 100%;
+        }
+
+            .view-toggle button {
+                flex: 1;
+            }
+
+        .venue-card-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<div class="venues-page">
+
+    <div class="venues-card">
+
+        <!-- Page Header -->
+        <div class="venues-header">
+
+            <div class="header-content">
+
+                <div class="venue-icon">
+                    <i class="bi bi-building"></i>
+                </div>
+
+                <div>
+                    <h1>Venues</h1>
+                    <p>Manage available venues and their booking information.</p>
+                </div>
+
+            </div>
+
+            <a asp-action="Create" class="create-venue-btn">
+                <i class="bi bi-plus-lg"></i>
+                Create New Venue
+            </a>
+
+        </div>
+
+        <div class="venues-content">
+
+            <!-- Error Message -->
+            @if (TempData["ErrorMessage"] != null)
+            {
+                <div class="alert alert-danger alert-dismissible fade show"
+                     role="alert"
+                     id="errorAlert">
+
+                    <strong>Unable to complete the request.</strong>
+                    <br />
+
+                    @TempData["ErrorMessage"]
+
+                    <button type="button"
+                            class="btn-close"
+                            data-bs-dismiss="alert"
+                            aria-label="Close">
+                    </button>
+
+                </div>
+            }
+
+            <!-- Success Message -->
+            @if (TempData["SuccessMessage"] != null)
+            {
+                var message = TempData["SuccessMessage"].ToString();
+                var alertClass = "alert-success";
+
+                if (message != null && message.Contains("deleted"))
+                {
+                    alertClass = "alert-danger";
+                }
+
+                <div class="alert @alertClass alert-dismissible fade show"
+                     role="alert"
+                     id="successAlert">
+
+                    @message
+
+                    <button type="button"
+                            class="btn-close"
+                            data-bs-dismiss="alert"
+                            aria-label="Close">
+                    </button>
+
+                </div>
+            }
+
+            <!-- Warning Message -->
+            @if (ViewBag.Message != null)
+            {
+                <div class="alert alert-warning">
+                    @ViewBag.Message
+                </div>
+            }
+
+            <!-- Search and Filter Panel -->
+            <div class="search-panel">
+
+                <div class="search-title">
+                    <i class="bi bi-search"></i>
+                    Search and Filter Venues
+                </div>
+
+                <form asp-controller="Venues"
+                      asp-action="Index"
+                      method="get">
+
+                    <div class="search-grid">
+
+                        <div>
+                            <label class="form-label-custom">
+                                Search
+                            </label>
+
+                            <input type="text"
+                                   name="searchString"
+                                   value="@Context.Request.Query["searchString"]"
+                                   class="form-control"
+                                   placeholder="Search by name or location" />
+                        </div>
+
+                        <div>
+                            <label class="form-label-custom">
+                                Minimum Capacity
+                            </label>
+
+                            <input type="number"
+                                   name="minCapacity"
+                                   value="@Context.Request.Query["minCapacity"]"
+                                   class="form-control"
+                                   placeholder="Min capacity" />
+                        </div>
+
+                        <div>
+                            <label class="form-label-custom">
+                                Maximum Capacity
+                            </label>
+
+                            <input type="number"
+                                   name="maxCapacity"
+                                   value="@Context.Request.Query["maxCapacity"]"
+                                   class="form-control"
+                                   placeholder="Max capacity" />
+                        </div>
+
+                        <div class="search-button-container">
+
+                            <button type="submit"
+                                    class="search-btn">
+                                <i class="bi bi-search"></i>
+                                Search
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                    <div class="exact-match">
+
+                        <input type="checkbox"
+                               id="exactMatch"
+                               name="exactMatch"
+                               value="true"
+                               @(Context.Request.Query["exactMatch"] == "true" ? "checked" : "") />
+
+                        <label for="exactMatch">
+                            Exact capacity match
+                        </label>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+            <!-- View Toggle -->
+            <div class="view-controls">
+
+                <div class="view-toggle">
+
+                    <button type="button"
+                            id="toggleTable"
+                            class="active">
+                        <i class="bi bi-table"></i>
+                        Table View
+                    </button>
+
+                    <button type="button"
+                            id="toggleCards">
+                        <i class="bi bi-grid-3x3-gap"></i>
+                        Card View
+                    </button>
+
+                </div>
+
+            </div>
+
+            <!-- TABLE VIEW -->
+            <div id="tableView">
+
+                <div class="table-section">
+
+                    <div class="table-responsive">
+
+                        <table class="venues-table">
+
+                            <thead>
+
+                                <tr>
+                                    <th>Venue Name</th>
+                                    <th>Location</th>
+                                    <th>Capacity</th>
+                                    <th>Hourly Rate</th>
+                                    <th>Image</th>
+                                    <th>Actions</th>
+                                </tr>
+
+                            </thead>
+
+                            <tbody>
+
+                                @if (Model != null && Model.Any())
+                                {
+                                    foreach (var item in Model)
+                                    {
+                                        <tr>
+
+                                            <td>
+                                                <span class="venue-name">
+                                                    @item.VenueName
+                                                </span>
+                                            </td>
+
+                                            <td>
+                                                <span class="location-text">
+                                                    <i class="bi bi-geo-alt"></i>
+                                                    @item.Location
+                                                </span>
+                                            </td>
+
+                                            <td>
+                                                <span class="capacity-badge">
+                                                    <i class="bi bi-people"></i>
+                                                    @item.Capacity
+                                                </span>
+                                            </td>
+
+                                            <td>
+                                                <span class="rate-text">
+                                                    R @item.HourlyRate.ToString("0.00")
+                                                </span>
+                                            </td>
+
+                                            <td>
+
+                                                @if (!string.IsNullOrWhiteSpace(item.ImageUrl))
+                                                {
+                                                    <img src="@item.ImageUrl"
+                                                         alt="@item.VenueName"
+                                                         class="venue-thumbnail" />
+                                                }
+                                                else
+                                                {
+                                                    <span class="no-image">
+                                                        No image
+                                                    </span>
+                                                }
+
+                                            </td>
+
+                                            <td>
+
+                                                <div class="action-buttons">
+
+                                                    <a asp-action="Edit"
+                                                       asp-route-id="@item.VenueId"
+                                                       class="action-btn edit-btn">
+                                                        <i class="bi bi-pencil"></i>
+                                                        Edit
+                                                    </a>
+
+                                                    <a asp-action="Details"
+                                                       asp-route-id="@item.VenueId"
+                                                       class="action-btn details-btn">
+                                                        <i class="bi bi-eye"></i>
+                                                        Details
+                                                    </a>
+
+                                                    <a asp-action="Delete"
+                                                       asp-route-id="@item.VenueId"
+                                                       class="action-btn delete-btn">
+                                                        <i class="bi bi-trash"></i>
+                                                        Delete
+                                                    </a>
+
+                                                </div>
+
+                                            </td>
+
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+
+                                        <td colspan="6"
+                                            class="empty-state">
+
+                                            <i class="bi bi-building-x"></i>
+
+                                            <strong>No venues found</strong>
+
+                                            Try changing your search or capacity filters.
+
+                                        </td>
+
+                                    </tr>
+                                }
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- CARD VIEW -->
+            <div id="cardView"
+                 class="venue-card-grid"
+                 style="display:none;">
+
+                @if (Model != null && Model.Any())
+                {
+                    foreach (var item in Model)
+                    {
+                        <div class="venue-display-card">
+
+                            <div class="card-image-wrapper">
+
+                                @if (!string.IsNullOrWhiteSpace(item.ImageUrl))
+                                {
+                                    <img src="@item.ImageUrl"
+                                         class="card-image"
+                                         alt="@item.VenueName" />
+                                }
+                                else
+                                {
+                                    <div class="card-no-image">
+                                        <i class="bi bi-image me-2"></i>
+                                        No image available
+                                    </div>
+                                }
+
+                            </div>
+
+                            <div class="venue-display-body">
+
+                                <div class="venue-display-name">
+                                    @item.VenueName
+                                </div>
+
+                                <div class="venue-detail">
+                                    <i class="bi bi-geo-alt"></i>
+                                    @item.Location
+                                </div>
+
+                                <div class="venue-detail">
+                                    <i class="bi bi-people"></i>
+                                    Capacity: @item.Capacity
+                                </div>
+
+                                <div class="venue-detail">
+                                    <i class="bi bi-cash"></i>
+                                    Hourly Rate:
+                                    <strong>
+                                        R @item.HourlyRate.ToString("0.00")
+                                    </strong>
+                                </div>
+
+                                <div class="card-actions">
+
+                                    <a asp-action="Edit"
+                                       asp-route-id="@item.VenueId"
+                                       class="action-btn edit-btn">
+                                        <i class="bi bi-pencil"></i>
+                                        Edit
+                                    </a>
+
+                                    <a asp-action="Details"
+                                       asp-route-id="@item.VenueId"
+                                       class="action-btn details-btn">
+                                        <i class="bi bi-eye"></i>
+                                        Details
+                                    </a>
+
+                                    <a asp-action="Delete"
+                                       asp-route-id="@item.VenueId"
+                                       class="action-btn delete-btn">
+                                        <i class="bi bi-trash"></i>
+                                        Delete
+                                    </a>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div class="empty-state">
+
+                        <i class="bi bi-building-x"></i>
+
+                        <strong>No venues found</strong>
+
+                        Try changing your search or capacity filters.
+
+                    </div>
+                }
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+@section Scripts {
+
+    <script>
+
+        // Switch to table view.
+        document.getElementById("toggleTable").addEventListener("click", function () {
+
+            document.getElementById("tableView").style.display = "block";
+
+            document.getElementById("cardView").style.display = "none";
+
+            document.getElementById("toggleTable").classList.add("active");
+
+            document.getElementById("toggleCards").classList.remove("active");
+
+        });
+
+        // Switch to card view.
+        document.getElementById("toggleCards").addEventListener("click", function () {
+
+            document.getElementById("tableView").style.display = "none";
+
+            document.getElementById("cardView").style.display = "grid";
+
+            document.getElementById("toggleCards").classList.add("active");
+
+            document.getElementById("toggleTable").classList.remove("active");
+
+        });
+
+        // Fade out the success message after five seconds.
+        var successAlert = document.getElementById("successAlert");
+
+        if (successAlert) {
+
+            setTimeout(function () {
+
+                successAlert.style.transition =
+                    "opacity 0.5s ease, transform 0.5s ease";
+
+                successAlert.style.opacity = "0";
+
+                successAlert.style.transform =
+                    "translateY(-20px)";
+
+                setTimeout(function () {
+
+                    if (successAlert) {
+                        successAlert.remove();
+                    }
+
+                }, 500);
+
+            }, 5000);
+        }
+
+        // Fade out the error message after seven seconds.
+        var errorAlert = document.getElementById("errorAlert");
+
+        if (errorAlert) {
+
+            setTimeout(function () {
+
+                errorAlert.style.transition =
+                    "opacity 0.5s ease, transform 0.5s ease";
+
+                errorAlert.style.opacity = "0";
+
+                errorAlert.style.transform =
+                    "translateY(-20px)";
+
+                setTimeout(function () {
+
+                    if (errorAlert) {
+                        errorAlert.remove();
+                    }
+
+                }, 500);
+
+            }, 7000);
+        }
+
+    </script>
+}

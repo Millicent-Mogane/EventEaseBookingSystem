@@ -1,0 +1,101 @@
+﻿@using PagedList.Core
+@using PagedList.Core.Mvc
+@model IPagedList<EventEaseBookingSystem.Models.BookingSummaryView>
+
+@{
+    ViewData["Title"] = "Booking Summary";
+}
+
+<h2>Booking Summary</h2>
+
+<form method="get" asp-action="Summary" class="form-inline mb-3">
+    <input type="text"
+           name="searchTerm"
+           value="@Context.Request.Query["searchTerm"]"
+           class="form-control mr-2"
+           placeholder="Search by Event, Venue, or Status" />
+
+    <button type="submit" class="btn btn-primary">
+        Search
+    </button>
+</form>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Booking ID</th>
+            <th>
+                @Html.ActionLink("Event Name", "Summary",
+                    new { sortOrder = ViewBag.EventSortParm,
+                          searchTerm = Context.Request.Query["searchTerm"],
+                          page = Model.PageNumber })
+            </th>
+            <th>Venue Name</th>
+            <th>Location</th>
+            <th>
+                @Html.ActionLink("Start Date", "Summary",
+                    new { sortOrder = ViewBag.DateSortParm,
+                          searchTerm = Context.Request.Query["searchTerm"],
+                          page = Model.PageNumber })
+            </th>
+            <th>End Date</th>
+            <th>Booking Date</th>
+            <th>Status</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model != null && Model.Any())
+        {
+            foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.BookingId</td>
+                    <td>@item.EventName</td>
+                    <td>@item.VenueName</td>
+                    <td>@item.Location</td>
+                    <td>@item.StartDate.ToString("yyyy-MM-dd")</td>
+                    <td>@item.EndDate.ToString("yyyy-MM-dd")</td>
+                    <td>@item.BookingDate.ToString("yyyy-MM-dd")</td>
+                    <td>
+                        @if (item.Status == "Confirmed")
+                        {
+                            <span class="badge bg-success">@item.Status</span>
+                        }
+                        else if (item.Status == "Pending")
+                        {
+                            <span class="badge bg-warning text-dark">@item.Status</span>
+                        }
+                        else if (item.Status == "Cancelled")
+                        {
+                            <span class="badge bg-danger">@item.Status</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-secondary">@item.Status</span>
+                        }
+                    </td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr>
+                <td colspan="8" class="text-center text-danger">No bookings found.</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<!-- Pagination summary -->
+<p class="text-muted text-center">
+    Showing @Model.FirstItemOnPage–@Model.LastItemOnPage of @Model.TotalItemCount bookings
+</p>
+
+<!-- Pagination -->
+<div class="text-center mt-3">
+    <pager list="@Model"
+           options="@PagedListRenderOptions.PageNumbersOnly"
+           asp-action="Summary"
+           asp-route-searchTerm="@Context.Request.Query["searchTerm"]"
+           asp-route-sortOrder="@ViewBag.CurrentSort" />
+</div>

@@ -8,22 +8,28 @@ namespace EventEaseBookingSystem.Models
     {
         public int EventId { get; set; }
 
-        [Required(ErrorMessage = "Event name is required")]
+        [Required(ErrorMessage = "Event name is required.")]
+        [StringLength(100, ErrorMessage = "Event name cannot exceed 100 characters.")]
         public string EventName { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "Start date is required")]
-        [DataType(DataType.DateTime)]
+        [Required(ErrorMessage = "Start date is required.")]
+        [DataType(DataType.Date)]
         public DateTime StartDate { get; set; }
 
-        [Required(ErrorMessage = "End date is required")]
-        [DataType(DataType.DateTime)]
+        [Required(ErrorMessage = "End date is required.")]
+        [DataType(DataType.Date)]
         public DateTime EndDate { get; set; }
 
-        [Required(ErrorMessage = "Description is required")]
+        [Required(ErrorMessage = "Description is required.")]
+        [StringLength(500, ErrorMessage = "Description cannot exceed 500 characters.")]
         public string Description { get; set; } = string.Empty;
 
+        // Stores the URL of the event image in Azure Blob Storage
+        [Url(ErrorMessage = "Please enter a valid URL.")]
+        public string? ImageUrl { get; set; }
+
         // Foreign Key
-        [Required(ErrorMessage = "Venue is required")]
+        [Required(ErrorMessage = "Venue is required.")]
         public int VenueId { get; set; }
 
         // Navigation Property

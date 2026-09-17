@@ -2,14 +2,256 @@
     ViewData["Title"] = "Privacy Policy";
 }
 
-<h1>@ViewData["Title"]</h1>
+<style>
+    body {
+        background: linear-gradient(to bottom right, #e6f0ff, #f8f9fa);
+        font-family: 'Segoe UI', Arial, sans-serif;
+        color: #333;
+        position: relative;
+        overflow-x: hidden;
+    }
 
-<p>
-    EventEaseBookingSystem values your privacy. Any personal information you provide when creating venues, events, or bookings is collected solely for managing your account and improving our services.
-</p>
-<p>
-    Your data is stored securely in our Azure SQL Database and is not shared with third parties. Only authorized administrators can access this information.
-</p>
-<p>
-    By using this site, you consent to our data handling practices. If you have questions about how your information is used, please contact the system administrator.
-</p>
+        /* Watermark Lock */
+        body::before {
+            content: "\f023"; /* Lock icon */
+            font-family: "Bootstrap Icons";
+            font-size: 200px;
+            color: rgba(0, 120, 215, 0.05);
+            position: absolute;
+            top: 20%;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 0;
+            pointer-events: none;
+        }
+
+    .policy-container {
+        background: linear-gradient(to bottom right, #dceeff, #ffffff);
+        max-width: 900px;
+        margin: 60px auto;
+        padding: 40px;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        position: relative;
+        z-index: 1;
+        animation: fadeIn 1s ease forwards;
+        opacity: 0;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+        .policy-container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+        }
+
+    h1 {
+        color: #005a9e;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 20px;
+    }
+
+    .lock-icon {
+        font-size: 1.8rem;
+        color: #0078d7;
+        transition: color 0.3s ease;
+    }
+
+        .lock-icon:hover {
+            color: #004a77;
+        }
+
+    /* Accordion Styling */
+    .accordion-button {
+        background-color: #0078d7;
+        color: #fff;
+        font-weight: 600;
+        transition: background-color 0.3s ease;
+    }
+
+        .accordion-button:hover {
+            background-color: #005a9e;
+        }
+
+    .accordion-body {
+        font-size: 1.05rem;
+        line-height: 1.6;
+        color: #333;
+    }
+
+    /* Footer Gradient Bar */
+    .footer-bar {
+        height: 6px;
+        background: linear-gradient(to right, #0078d7, #00a2ff, #00c6ff);
+        border-radius: 3px;
+        margin-top: 40px;
+    }
+
+    /* Fade-in animation */
+    @@keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+</style>
+
+<div class="policy-container">
+
+    <h1>
+        <i class="lock-icon bi bi-lock-fill"></i>
+        @ViewData["Title"]
+    </h1>
+
+    <p>
+        <em>
+            This Privacy Policy explains how EventEaseBookingSystem collects,
+            uses, and protects your personal information. We are committed to
+            maintaining transparency and safeguarding your data.
+        </em>
+    </p>
+
+    <!-- Accordion -->
+    <div class="accordion" id="privacyAccordion">
+
+        <div class="accordion-item">
+
+            <h2 class="accordion-header" id="headingOne">
+
+                <button class="accordion-button"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#collapseOne"
+                        aria-expanded="true"
+                        aria-controls="collapseOne">
+
+                    1. Introduction
+
+                </button>
+
+            </h2>
+
+            <div id="collapseOne"
+                 class="accordion-collapse collapse show"
+                 data-bs-parent="#privacyAccordion">
+
+                <div class="accordion-body">
+
+                    EventEaseBookingSystem values your privacy. Any personal
+                    information you provide when creating venues, events, or
+                    bookings is collected solely for managing your account
+                    and improving our services.
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="accordion-item">
+
+            <h2 class="accordion-header" id="headingTwo">
+
+                <button class="accordion-button collapsed"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#collapseTwo"
+                        aria-expanded="false"
+                        aria-controls="collapseTwo">
+
+                    2. Data Storage and Security
+
+                </button>
+
+            </h2>
+
+            <div id="collapseTwo"
+                 class="accordion-collapse collapse"
+                 data-bs-parent="#privacyAccordion">
+
+                <div class="accordion-body">
+
+                    Your data is stored securely in our Azure SQL Database
+                    and is not shared with third parties. Only authorized
+                    administrators can access this information.
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="accordion-item">
+
+            <h2 class="accordion-header" id="headingThree">
+
+                <button class="accordion-button collapsed"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#collapseThree"
+                        aria-expanded="false"
+                        aria-controls="collapseThree">
+
+                    3. User Consent
+
+                </button>
+
+            </h2>
+
+            <div id="collapseThree"
+                 class="accordion-collapse collapse"
+                 data-bs-parent="#privacyAccordion">
+
+                <div class="accordion-body">
+
+                    By using this site, you consent to our data handling
+                    practices. If you have questions about how your
+                    information is used, please contact the system
+                    administrator.
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <hr />
+
+    <p style="font-size:0.9rem; color:#555;">
+
+        Last updated: September 2026
+        <br />
+
+        For inquiries, contact:
+        <a href="mailto:admin@eventeasebookingsystem.co.za">
+            admin@eventeasebookingsystem.co.za
+        </a>
+
+    </p>
+
+    <div class="footer-bar"></div>
+
+</div>
+
+
+<!-- Bootstrap CSS & JS for Accordion -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet">
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+
+<!-- Bootstrap Icons CDN -->
+<link rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">

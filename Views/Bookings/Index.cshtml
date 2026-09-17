@@ -1,49 +1,1477 @@
 ﻿@model IEnumerable<EventEaseBookingSystem.Models.Booking>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Bookings";
+
+    int currentPage = ViewBag.CurrentPage ?? 1;
+    int totalPages = ViewBag.TotalPages ?? 1;
+
+    string currentSearch = Context.Request.Query["searchString"].ToString();
+    string currentStartDate = Context.Request.Query["startDate"].ToString();
+    string currentEndDate = Context.Request.Query["endDate"].ToString();
+    string currentStatus = Context.Request.Query["statusFilter"].ToString();
+
+    bool exactMatch = Context.Request.Query["exactMatch"] == "true";
 }
 
-<h1>Bookings</h1>
+<style>
+    body {
+        background: linear-gradient(to bottom right, #e6f0ff, #f8f9fa);
+        font-family: 'Segoe UI', Arial, sans-serif;
+        color: #333;
+        overflow-x: hidden;
+    }
 
-<p>
-    <a asp-action="Create">Create New Booking</a>
-</p>
+    .booking-page {
+        max-width: 1500px;
+        margin: 45px auto;
+        padding: 0 20px;
+    }
 
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.BookingDate)
-            </th>
-            <th>
-                Event Name
-            </th>
-            <th>
-                Venue Name
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
-            <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => item.BookingDate)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Event.EventName)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Venue.VenueName)
-                </td>
-                <td>
-                    <a asp-action="Edit" asp-route-id="@item.BookingId">Edit</a> |
-                    <a asp-action="Details" asp-route-id="@item.BookingId">Details</a> |
-                    <a asp-action="Delete" asp-route-id="@item.BookingId">Delete</a>
-                </td>
-            </tr>
+    .booking-main-card {
+        background: #ffffff;
+        border-radius: 16px;
+        box-shadow: 0 8px 25px rgba(0, 90, 158, 0.10);
+        border: 1px solid #e3eaf5;
+        overflow: hidden;
+    }
+
+    /* Page Header */
+
+    .booking-header {
+        background: linear-gradient(135deg, #0078d7, #005a9e);
+        color: white;
+        padding: 30px 35px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 20px;
+    }
+
+    .booking-header-left {
+        display: flex;
+        align-items: center;
+        gap: 18px;
+    }
+
+    .booking-icon {
+        width: 54px;
+        height: 54px;
+        background: rgba(255, 255, 255, 0.18);
+        border: 1px solid rgba(255, 255, 255, 0.35);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 26px;
+    }
+
+    .booking-header h1 {
+        margin: 0;
+        font-size: 30px;
+        font-weight: 600;
+    }
+
+    .booking-header p {
+        margin: 5px 0 0;
+        font-size: 15px;
+        opacity: 0.9;
+    }
+
+    .btn-create-booking {
+        background: white;
+        color: #005a9e;
+        border: none;
+        border-radius: 8px;
+        padding: 11px 20px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.2s ease;
+        white-space: nowrap;
+    }
+
+        .btn-create-booking:hover {
+            background: #f1f7ff;
+            color: #004578;
+            transform: translateY(-1px);
         }
-    </tbody>
-</table>
+
+    /* Content */
+
+    .booking-content {
+        padding: 30px 35px 35px;
+    }
+
+    /* Summary Cards */
+
+    .summary-card {
+        background: white;
+        border-radius: 12px;
+        border: 1px solid #e1e8f0;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        cursor: pointer;
+        height: 100%;
+    }
+
+        .summary-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 20px rgba(0, 90, 158, 0.12);
+        }
+
+    .total-card {
+        border-left: 5px solid #6c757d;
+    }
+
+    .confirmed-card {
+        border-left: 5px solid #28a745;
+    }
+
+    .pending-card {
+        border-left: 5px solid #ffc107;
+    }
+
+    .cancelled-card {
+        border-left: 5px solid #dc3545;
+    }
+
+    .summary-icon {
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        font-size: 18px;
+    }
+
+    .total-icon {
+        background-color: #e9ecef;
+        color: #495057;
+    }
+
+    .confirmed-icon {
+        background-color: #d4edda;
+        color: #28a745;
+    }
+
+    .pending-icon {
+        background-color: #fff3cd;
+        color: #856404;
+    }
+
+    .cancelled-icon {
+        background-color: #f8d7da;
+        color: #dc3545;
+    }
+
+    .summary-title {
+        color: #718396;
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+    }
+
+    .summary-number {
+        font-size: 28px;
+        font-weight: 600;
+        margin-bottom: 4px;
+    }
+
+    .summary-link {
+        color: #718396;
+        font-size: 13px;
+    }
+
+    /* Alerts */
+
+    .alert {
+        border-radius: 10px;
+        border: none;
+        margin-bottom: 20px;
+    }
+
+    .alert-danger {
+        border-left: 4px solid #dc3545;
+    }
+
+    .alert-success {
+        border-left: 4px solid #28a745;
+    }
+
+    /* Search Section */
+
+    .filter-card {
+        background: #f8fbff;
+        border: 1px solid #e1ebf7;
+        border-radius: 12px;
+        padding: 25px;
+        margin-top: 25px;
+        margin-bottom: 25px;
+    }
+
+    .filter-title {
+        color: #005a9e;
+        font-size: 19px;
+        font-weight: 600;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 9px;
+    }
+
+        .filter-title i {
+            color: #0078d7;
+        }
+
+    .form-label {
+        color: #536779;
+        font-size: 13px;
+        font-weight: 600;
+        margin-bottom: 7px;
+    }
+
+    .form-control {
+        border: 1px solid #ccd9e6;
+        border-radius: 8px;
+        min-height: 42px;
+        background: white;
+    }
+
+        .form-control:focus {
+            border-color: #0078d7;
+            box-shadow: 0 0 0 0.15rem rgba(0, 120, 215, 0.12);
+        }
+
+    .form-check-label {
+        color: #536779;
+        font-size: 13px;
+        font-weight: 500;
+    }
+
+    .btn-search {
+        background: #0078d7;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        padding: 10px 20px;
+        font-weight: 600;
+    }
+
+        .btn-search:hover {
+            background: #005a9e;
+            color: white;
+        }
+
+    .btn-clear {
+        background: white;
+        color: #536779;
+        border: 1px solid #cbd8e6;
+        border-radius: 8px;
+        padding: 10px 20px;
+        font-weight: 600;
+        text-decoration: none;
+    }
+
+        .btn-clear:hover {
+            background: #f1f6fb;
+            color: #005a9e;
+            border-color: #9fb8d1;
+        }
+
+    /* Results Header */
+
+    .results-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+        gap: 15px;
+    }
+
+    .results-title {
+        color: #005a9e;
+        font-size: 18px;
+        font-weight: 600;
+    }
+
+    .results-count {
+        color: #718396;
+        font-size: 14px;
+    }
+
+    .status-filter-badge {
+        background: #eaf3fb;
+        color: #005a9e;
+        border: 1px solid #d5e6f5;
+        border-radius: 20px;
+        padding: 5px 12px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    /* Booking Table */
+
+    .table-card {
+        background: white;
+        border: 1px solid #e1e8f0;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 4px 15px rgba(0, 90, 158, 0.06);
+    }
+
+    .booking-table {
+        margin-bottom: 0;
+        min-width: 1100px;
+    }
+
+        .booking-table thead {
+            background: #005a9e;
+            color: white;
+        }
+
+            .booking-table thead th {
+                border: none;
+                padding: 15px 12px;
+                font-size: 13px;
+                font-weight: 600;
+                white-space: nowrap;
+            }
+
+                .booking-table thead th a {
+                    color: white;
+                    text-decoration: none;
+                }
+
+                    .booking-table thead th a:hover {
+                        color: #dceeff;
+                    }
+
+        .booking-table tbody td {
+            padding: 14px 12px;
+            border-color: #edf1f5;
+            color: #536779;
+            font-size: 14px;
+            vertical-align: middle;
+        }
+
+        .booking-table tbody tr:hover {
+            background: #f7fbff;
+        }
+
+    .booking-id {
+        color: #005a9e;
+        font-weight: 700;
+    }
+
+    .event-name {
+        color: #333;
+        font-weight: 600;
+    }
+
+    .venue-name {
+        color: #536779;
+        font-weight: 600;
+    }
+
+    .location-text {
+        color: #718396;
+        font-size: 13px;
+    }
+
+    .date-text {
+        white-space: nowrap;
+        color: #536779;
+    }
+
+    /* Status Dropdown */
+
+    .status-select {
+        cursor: pointer;
+        width: 130px;
+        border: none;
+        border-radius: 20px;
+        text-align: center;
+        text-align-last: center;
+        font-size: 12px;
+        font-weight: 700;
+        min-height: 34px;
+        padding: 5px 10px;
+    }
+
+        .status-select option {
+            color: #333;
+            background: white;
+        }
+
+    /* Action Buttons */
+
+    .action-buttons {
+        display: flex;
+        justify-content: center;
+        gap: 5px;
+        white-space: nowrap;
+    }
+
+    .action-btn {
+        min-width: 62px;
+        border-radius: 7px;
+        font-size: 12px;
+        font-weight: 600;
+        padding: 6px 9px;
+        text-decoration: none;
+        transition: all 0.2s ease;
+    }
+
+    .action-edit {
+        color: #0078d7;
+        border: 1px solid #b9d8f2;
+        background: #f5faff;
+    }
+
+        .action-edit:hover {
+            background: #0078d7;
+            color: white;
+        }
+
+    .action-details {
+        color: #536779;
+        border: 1px solid #cbd8e6;
+        background: white;
+    }
+
+        .action-details:hover {
+            background: #536779;
+            color: white;
+        }
+
+    .action-delete {
+        color: #dc3545;
+        border: 1px solid #f0b9c0;
+        background: #fff8f8;
+    }
+
+        .action-delete:hover {
+            background: #dc3545;
+            color: white;
+        }
+
+    /* Empty State */
+
+    .empty-state {
+        padding: 55px 20px;
+        text-align: center;
+    }
+
+    .empty-icon {
+        width: 65px;
+        height: 65px;
+        margin: 0 auto 15px;
+        border-radius: 50%;
+        background: #eef6ff;
+        color: #0078d7;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 28px;
+    }
+
+    .empty-state h5 {
+        color: #536779;
+        font-weight: 600;
+    }
+
+    .empty-state p {
+        color: #718396;
+        margin-bottom: 0;
+    }
+
+    /* Pagination */
+
+    .pagination-container {
+        margin-top: 25px;
+        margin-bottom: 10px;
+    }
+
+    .pagination .page-link {
+        color: #005a9e;
+        border-color: #d8e4ef;
+        min-width: 42px;
+        text-align: center;
+        border-radius: 7px;
+        margin: 0 2px;
+    }
+
+    .pagination .page-item.active .page-link {
+        background: #0078d7;
+        border-color: #0078d7;
+        color: white;
+    }
+
+    .pagination .page-item.disabled .page-link {
+        color: #a8b5c1;
+        background: #f7f9fb;
+    }
+
+    .pagination .page-link:hover {
+        background: #eef6ff;
+        color: #005a9e;
+    }
+
+    /* Responsive */
+
+    @@media (max-width: 900px) {
+
+        .booking-page {
+            margin: 25px auto;
+            padding: 0 15px;
+        }
+
+        .booking-header {
+            flex-direction: column;
+            align-items: flex-start;
+            padding: 25px;
+        }
+
+        .booking-content {
+            padding: 25px;
+        }
+
+        .btn-create-booking {
+            width: 100%;
+            text-align: center;
+        }
+
+        .results-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+    }
+
+    @@media (max-width: 600px) {
+
+        .booking-header-left {
+            align-items: flex-start;
+        }
+
+        .booking-icon {
+            width: 46px;
+            height: 46px;
+            font-size: 22px;
+        }
+
+        .booking-header h1 {
+            font-size: 25px;
+        }
+
+        .booking-content {
+            padding: 20px;
+        }
+
+        .filter-card {
+            padding: 20px;
+        }
+
+        .action-buttons {
+            flex-direction: column;
+        }
+
+        .action-btn {
+            width: 100%;
+        }
+    }
+</style>
+
+<div class="booking-page">
+
+    <div class="booking-main-card">
+
+        <!-- Page Header -->
+        <div class="booking-header">
+
+            <div class="booking-header-left">
+
+                <div class="booking-icon">
+                    <i class="bi bi-calendar-check"></i>
+                </div>
+
+                <div>
+                    <h1>Bookings</h1>
+                    <p>Manage and monitor all event bookings.</p>
+                </div>
+
+            </div>
+
+            <a asp-action="Create"
+               class="btn-create-booking">
+
+                <i class="bi bi-plus-lg"></i>
+                Create New Booking
+
+            </a>
+
+        </div>
+
+        <div class="booking-content">
+
+            <!-- Summary Cards -->
+            <div class="row g-3">
+
+                <!-- Total -->
+                <div class="col-12 col-sm-6 col-lg-3">
+
+                    <a asp-action="Index"
+                       class="text-decoration-none">
+
+                        <div class="summary-card total-card">
+
+                            <div class="card-body p-4">
+
+                                <div class="d-flex justify-content-between align-items-center">
+
+                                    <div>
+
+                                        <div class="summary-title">
+                                            Total Bookings
+                                        </div>
+
+                                        <div class="summary-number text-dark">
+                                            @ViewBag.TotalBookings
+                                        </div>
+
+                                        <div class="summary-link">
+                                            View all bookings
+                                        </div>
+
+                                    </div>
+
+                                    <div class="summary-icon total-icon">
+                                        <i class="bi bi-calendar3"></i>
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </a>
+
+                </div>
+
+
+                <!-- Confirmed -->
+                <div class="col-12 col-sm-6 col-lg-3">
+
+                    <a asp-action="Index"
+                       asp-route-statusFilter="Confirmed"
+                       class="text-decoration-none">
+
+                        <div class="summary-card confirmed-card">
+
+                            <div class="card-body p-4">
+
+                                <div class="d-flex justify-content-between align-items-center">
+
+                                    <div>
+
+                                        <div class="summary-title">
+                                            Confirmed
+                                        </div>
+
+                                        <div class="summary-number text-success">
+                                            @ViewBag.ConfirmedBookings
+                                        </div>
+
+                                        <div class="summary-link">
+                                            View confirmed bookings
+                                        </div>
+
+                                    </div>
+
+                                    <div class="summary-icon confirmed-icon">
+                                        <i class="bi bi-check-lg"></i>
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </a>
+
+                </div>
+
+
+                <!-- Pending -->
+                <div class="col-12 col-sm-6 col-lg-3">
+
+                    <a asp-action="Index"
+                       asp-route-statusFilter="Pending"
+                       class="text-decoration-none">
+
+                        <div class="summary-card pending-card">
+
+                            <div class="card-body p-4">
+
+                                <div class="d-flex justify-content-between align-items-center">
+
+                                    <div>
+
+                                        <div class="summary-title">
+                                            Pending
+                                        </div>
+
+                                        <div class="summary-number text-warning">
+                                            @ViewBag.PendingBookings
+                                        </div>
+
+                                        <div class="summary-link">
+                                            View pending bookings
+                                        </div>
+
+                                    </div>
+
+                                    <div class="summary-icon pending-icon">
+                                        <i class="bi bi-clock"></i>
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </a>
+
+                </div>
+
+
+                <!-- Cancelled -->
+                <div class="col-12 col-sm-6 col-lg-3">
+
+                    <a asp-action="Index"
+                       asp-route-statusFilter="Cancelled"
+                       class="text-decoration-none">
+
+                        <div class="summary-card cancelled-card">
+
+                            <div class="card-body p-4">
+
+                                <div class="d-flex justify-content-between align-items-center">
+
+                                    <div>
+
+                                        <div class="summary-title">
+                                            Cancelled
+                                        </div>
+
+                                        <div class="summary-number text-danger">
+                                            @ViewBag.CancelledBookings
+                                        </div>
+
+                                        <div class="summary-link">
+                                            View cancelled bookings
+                                        </div>
+
+                                    </div>
+
+                                    <div class="summary-icon cancelled-icon">
+                                        <i class="bi bi-x-lg"></i>
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </a>
+
+                </div>
+
+            </div>
+
+
+            <!-- Error Message -->
+            @if (TempData["ErrorMessage"] != null)
+            {
+                <div class="alert alert-danger alert-dismissible fade show mt-4"
+                     role="alert"
+                     id="errorAlert">
+
+                    <strong>
+                        Unable to complete the request.
+                    </strong>
+
+                    <br />
+
+                    @TempData["ErrorMessage"]
+
+                    <button type="button"
+                            class="btn-close"
+                            data-bs-dismiss="alert"
+                            aria-label="Close">
+                    </button>
+
+                </div>
+            }
+
+
+            <!-- Success Message -->
+            @if (TempData["SuccessMessage"] != null)
+            {
+                var message = TempData["SuccessMessage"].ToString();
+                var alertClass = "alert-success";
+
+                if (message != null &&
+                message.Contains("deleted",
+                StringComparison.OrdinalIgnoreCase))
+                {
+                    alertClass = "alert-danger";
+                }
+
+                <div class="alert @alertClass alert-dismissible fade show mt-4"
+                     role="alert"
+                     id="successAlert">
+
+                    @message
+
+                    <button type="button"
+                            class="btn-close"
+                            data-bs-dismiss="alert"
+                            aria-label="Close">
+                    </button>
+
+                </div>
+            }
+
+
+            <!-- Search and Filter -->
+            <div class="filter-card">
+
+                <div class="filter-title">
+                    <i class="bi bi-search"></i>
+                    Search and Filter Bookings
+                </div>
+
+                <form asp-controller="Bookings"
+                      asp-action="Index"
+                      method="get">
+
+                    <div class="row g-3">
+
+                        <!-- Search -->
+                        <div class="col-12 col-md-4">
+
+                            <label class="form-label">
+                                Search
+                            </label>
+
+                            <input type="text"
+                                   name="searchString"
+                                   value="@currentSearch"
+                                   class="form-control"
+                                   placeholder="Booking ID, Event, or Venue" />
+
+                        </div>
+
+
+                        <!-- Start Date -->
+                        <div class="col-12 col-md-2">
+
+                            <label class="form-label">
+                                Start Date
+                            </label>
+
+                            <input type="date"
+                                   name="startDate"
+                                   value="@currentStartDate"
+                                   class="form-control" />
+
+                        </div>
+
+
+                        <!-- End Date -->
+                        <div class="col-12 col-md-2">
+
+                            <label class="form-label">
+                                End Date
+                            </label>
+
+                            <input type="date"
+                                   name="endDate"
+                                   value="@currentEndDate"
+                                   class="form-control" />
+
+                        </div>
+
+
+                        <!-- Status -->
+                        <div class="col-12 col-md-2">
+
+                            <label class="form-label">
+                                Status
+                            </label>
+
+                            <select name="statusFilter"
+                                    class="form-control">
+
+                                <option value="">
+                                    All
+                                </option>
+
+                                <option value="Confirmed"
+                                        selected="@(currentStatus == "Confirmed")">
+                                    Confirmed
+                                </option>
+
+                                <option value="Pending"
+                                        selected="@(currentStatus == "Pending")">
+                                    Pending
+                                </option>
+
+                                <option value="Cancelled"
+                                        selected="@(currentStatus == "Cancelled")">
+                                    Cancelled
+                                </option>
+
+                            </select>
+
+                        </div>
+
+
+                        <!-- Exact Match -->
+                        <div class="col-12 col-md-2 d-flex align-items-end">
+
+                            <div class="form-check mb-2">
+
+                                <input type="checkbox"
+                                       name="exactMatch"
+                                       value="true"
+                                       class="form-check-input"
+                                       id="exactMatch"
+                                       @(exactMatch ? "checked" : "") />
+
+                                <label class="form-check-label"
+                                       for="exactMatch">
+                                    Exact date match
+                                </label>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- Buttons -->
+                        <div class="col-12">
+
+                            <button type="submit"
+                                    class="btn-search me-2">
+
+                                <i class="bi bi-search"></i>
+                                Search
+
+                            </button>
+
+                            <a asp-action="Index"
+                               class="btn-clear">
+
+                                <i class="bi bi-arrow-counterclockwise"></i>
+                                Clear Filters
+
+                            </a>
+
+                        </div>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+
+            <!-- Controller Message -->
+            @if (ViewBag.Message != null)
+            {
+                <div class="alert alert-warning">
+                    <i class="bi bi-info-circle me-1"></i>
+                    @ViewBag.Message
+                </div>
+            }
+
+
+            <!-- Results Header -->
+            <div class="results-header">
+
+                <div>
+
+                    <span class="results-title">
+                        Booking Results
+                    </span>
+
+                    <span class="results-count ms-2">
+                        @ViewBag.TotalBookings booking(s)
+                    </span>
+
+                    @if (!string.IsNullOrEmpty(currentStatus))
+                    {
+                        <span class="status-filter-badge ms-2">
+                            @currentStatus
+                        </span>
+                    }
+
+                </div>
+
+                <div class="results-count">
+                    Page @currentPage of @totalPages
+                </div>
+
+            </div>
+
+
+            <!-- Booking Table -->
+            <div class="table-card">
+
+                <div class="table-responsive">
+
+                    <table class="table booking-table align-middle text-center">
+
+                        <thead>
+
+                            <tr>
+
+                                <th>
+                                    Booking ID
+                                </th>
+
+                                <th>
+
+                                    <a asp-action="Index"
+                                       asp-route-searchString="@currentSearch"
+                                       asp-route-startDate="@currentStartDate"
+                                       asp-route-endDate="@currentEndDate"
+                                       asp-route-exactMatch="@exactMatch"
+                                       asp-route-statusFilter="@currentStatus"
+                                       asp-route-sortOrder="@ViewBag.DateSortParam">
+
+                                        Booking Date
+
+                                        @if (ViewBag.CurrentSort == "date_asc")
+                                        {
+                                            <span>
+                                                &#8593;
+                                            </span>
+                                        }
+                                        else if (ViewBag.CurrentSort == "date_desc")
+                                        {
+                                            <span>
+                                                &#8595;
+                                            </span>
+                                        }
+
+                                    </a>
+
+                                </th>
+
+                                <th>
+                                    Event Name
+                                </th>
+
+                                <th>
+                                    Venue Name
+                                </th>
+
+                                <th>
+                                    Location
+                                </th>
+
+                                <th>
+                                    Event Start
+                                </th>
+
+                                <th>
+                                    Event End
+                                </th>
+
+                                <th>
+                                    Status
+                                </th>
+
+                                <th>
+                                    Actions
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+                        <tbody>
+
+                            @if (Model != null && Model.Any())
+                            {
+                                foreach (var item in Model)
+                                {
+                                    <tr>
+
+                                        <!-- Booking ID -->
+                                        <td>
+
+                                            <span class="booking-id">
+                                                #@item.BookingId
+                                            </span>
+
+                                        </td>
+
+
+                                        <!-- Booking Date -->
+                                        <td>
+
+                                            <span class="date-text">
+                                                @item.BookingDate.ToShortDateString()
+                                            </span>
+
+                                        </td>
+
+
+                                        <!-- Event -->
+                                        <td>
+
+                                            <span class="event-name">
+                                                @(item.Event?.EventName ?? "N/A")
+                                            </span>
+
+                                        </td>
+
+
+                                        <!-- Venue -->
+                                        <td>
+
+                                            <span class="venue-name">
+                                                @(item.Venue?.VenueName ?? "N/A")
+                                            </span>
+
+                                        </td>
+
+
+                                        <!-- Location -->
+                                        <td>
+
+                                            <span class="location-text">
+                                                @(item.Venue?.Location ?? "N/A")
+                                            </span>
+
+                                        </td>
+
+
+                                        <!-- Event Start -->
+                                        <td>
+
+                                            <span class="date-text">
+                                                @(item.Event != null
+                                                                                        ? item.Event.StartDate.ToShortDateString()
+                                                                                        : "N/A")
+                                                                                            </span>
+
+                                        </td>
+
+
+                                        <!-- Event End -->
+                                        <td>
+
+                                            <span class="date-text">
+                                                @(item.Event != null
+                                                                                        ? item.Event.EndDate.ToShortDateString()
+                                                                                        : "N/A")
+                                    </span>
+
+                                                                                                    </td>
+
+
+                                                                                                    <!-- Status -->
+                                                                                                    <td>
+
+                                                                                                        <form asp-action="UpdateStatus"
+                                                                                                              method="post"
+                                                                                                              class="d-inline">
+
+                                                                                                            <input type="hidden"
+                                                                                                                   name="id"
+                                                                                                                   value="@item.BookingId" />
+
+                                                                                                            <select name="status"
+                                                                                                                    class="status-select text-white"
+                                                                                                                    onchange="this.form.submit()"
+                                                                                                                    style="background-color:@(
+                                                                                                                    item.Status == "Confirmed"
+                                                                                                                        ? "#28a745"
+                                                                                                                        : item.Status == "Pending"
+                                                                                                                            ? "#ffc107"
+                                                                                                                            : item.Status == "Cancelled"
+                                                                                                                                ? "#dc3545"
+                                                                                                                                : "#6c757d");">
+
+                                            <option value="Confirmed"
+                                                    selected="@(item.Status == "Confirmed")">
+                                                Confirmed
+                                            </option>
+
+                                                    <option value="Pending"
+                                                            selected="@(item.Status == "Pending")">
+                                                        Pending
+                                                    </option>
+
+                                                    <option value="Cancelled"
+                                                            selected="@(item.Status == "Cancelled")">
+                                                        Cancelled
+                                                    </option>
+
+                                                </select>
+
+                                            </form>
+
+                                        </td>
+
+
+                                        <!-- Actions -->
+                                        <td>
+
+                                            <div class="action-buttons">
+
+                                                <a asp-action="Edit"
+                                                   asp-route-id="@item.BookingId"
+                                                   class="action-btn action-edit">
+                                                    Edit
+                                                </a>
+
+                                                <a asp-action="Details"
+                                                   asp-route-id="@item.BookingId"
+                                                   class="action-btn action-details">
+                                                    Details
+                                                </a>
+
+                                                <a asp-action="Delete"
+                                                   asp-route-id="@item.BookingId"
+                                                   class="action-btn action-delete">
+                                                    Delete
+                                                </a>
+
+                                            </div>
+
+                                        </td>
+
+                                    </tr>
+                                                        }
+                            }
+                            else
+                            {
+                                <tr>
+
+                                    <td colspan="9">
+
+                                        <div class="empty-state">
+
+                                            <div class="empty-icon">
+                                                <i class="bi bi-calendar-x"></i>
+                                            </div>
+
+                                            <h5>
+                                                No bookings found
+                                            </h5>
+
+                                            <p>
+                                                Try adjusting your search or filter criteria.
+                                            </p>
+
+                                        </div>
+
+                                    </td>
+
+                                </tr>
+                            }
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+
+            <!-- Pagination -->
+            @if (totalPages > 1)
+            {
+                <div class="pagination-container">
+
+                    <nav aria-label="Booking pages">
+
+                        <ul class="pagination justify-content-center">
+
+                            <!-- Previous -->
+                            <li class="page-item @(currentPage == 1 ? "disabled" : "")">
+
+                                <a class="page-link"
+                                   asp-action="Index"
+                                   asp-route-page="@(currentPage - 1)"
+                                   asp-route-searchString="@currentSearch"
+                                   asp-route-startDate="@currentStartDate"
+                                   asp-route-endDate="@currentEndDate"
+                                   asp-route-exactMatch="@exactMatch"
+                                   asp-route-statusFilter="@currentStatus"
+                                   asp-route-sortOrder="@ViewBag.CurrentSort">
+
+                                    <i class="bi bi-chevron-left"></i>
+                                    Previous
+
+                                </a>
+
+                            </li>
+
+
+                            <!-- Page Numbers -->
+                            @for (int i = 1; i <= totalPages; i++)
+                            {
+                                <li class="page-item @(i == currentPage ? "active" : "")">
+
+                                    <a class="page-link"
+                                       asp-action="Index"
+                                       asp-route-page="@i"
+                                       asp-route-searchString="@currentSearch"
+                                       asp-route-startDate="@currentStartDate"
+                                       asp-route-endDate="@currentEndDate"
+                                       asp-route-exactMatch="@exactMatch"
+                                       asp-route-statusFilter="@currentStatus"
+                                       asp-route-sortOrder="@ViewBag.CurrentSort">
+
+                                        @i
+
+                                    </a>
+
+                                </li>
+                            }
+
+
+                            <!-- Next -->
+                            <li class="page-item @(currentPage == totalPages ? "disabled" : "")">
+
+                                <a class="page-link"
+                                   asp-action="Index"
+                                   asp-route-page="@(currentPage + 1)"
+                                   asp-route-searchString="@currentSearch"
+                                   asp-route-startDate="@currentStartDate"
+                                   asp-route-endDate="@currentEndDate"
+                                   asp-route-exactMatch="@exactMatch"
+                                   asp-route-statusFilter="@currentStatus"
+                                   asp-route-sortOrder="@ViewBag.CurrentSort">
+
+                                    Next
+                                    <i class="bi bi-chevron-right"></i>
+
+                                </a>
+
+                            </li>
+
+                        </ul>
+
+                    </nav>
+
+                </div>
+            }
+
+        </div>
+
+    </div>
+
+</div>
+
+
+@section Scripts {
+
+    <script>
+
+        document.addEventListener('DOMContentLoaded', function () {
+
+            var successAlert =
+                document.getElementById('successAlert');
+
+            if (successAlert) {
+
+                setTimeout(function () {
+
+                    successAlert.style.transition =
+                        "opacity 0.5s ease, transform 0.5s ease";
+
+                    successAlert.style.opacity = "0";
+
+                    successAlert.style.transform =
+                        "translateY(-20px)";
+
+                    setTimeout(function () {
+
+                        if (typeof bootstrap !== 'undefined') {
+
+                            var alert =
+                                bootstrap.Alert.getOrCreateInstance(
+                                    successAlert
+                                );
+
+                            alert.close();
+
+                        }
+                        else {
+
+                            successAlert.remove();
+
+                        }
+
+                    }, 500);
+
+                }, 5000);
+            }
+
+
+            var errorAlert =
+                document.getElementById('errorAlert');
+
+            if (errorAlert) {
+
+                setTimeout(function () {
+
+                    errorAlert.style.transition =
+                        "opacity 0.5s ease, transform 0.5s ease";
+
+                    errorAlert.style.opacity = "0";
+
+                    errorAlert.style.transform =
+                        "translateY(-20px)";
+
+                    setTimeout(function () {
+
+                        if (typeof bootstrap !== 'undefined') {
+
+                            var alert =
+                                bootstrap.Alert.getOrCreateInstance(
+                                    errorAlert
+                                );
+
+                            alert.close();
+
+                        }
+                        else {
+
+                            errorAlert.remove();
+
+                        }
+
+                    }, 500);
+
+                }, 7000);
+            }
+
+        });
+
+    </script>
+}

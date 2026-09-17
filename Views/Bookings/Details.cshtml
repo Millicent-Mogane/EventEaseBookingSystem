@@ -1,36 +1,451 @@
 ﻿@model EventEaseBookingSystem.Models.Booking
 
 @{
-    ViewData["Title"] = "Details";
+    ViewData["Title"] = "Booking Details";
 }
 
-<h1>Details</h1>
+<style>
+    body {
+        background: linear-gradient(to bottom right, #e6f0ff, #f8f9fa);
+        font-family: 'Segoe UI', Arial, sans-serif;
+        color: #333;
+        position: relative;
+        overflow-x: hidden;
+    }
 
-<div>
-    <h4>Booking</h4>
-    <hr />
-    <dl class="row">
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.BookingDate)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.BookingDate)
-        </dd>
-        <dt class="col-sm-2">
-            Event
-        </dt>
-        <dd class="col-sm-10">
-            @Model.Event.EventName
-        </dd>
-        <dt class="col-sm-2">
-            Venue
-        </dt>
-        <dd class="col-sm-10">
-            @Model.Venue.VenueName
-        </dd>
-    </dl>
-</div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model?.BookingId">Edit</a> |
-    <a asp-action="Index">Back to List</a>
+    .booking-page {
+        max-width: 1000px;
+        margin: 50px auto;
+        padding: 0 20px;
+    }
+
+    .booking-card {
+        background: #ffffff;
+        border-radius: 16px;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+        overflow: hidden;
+    }
+
+    .booking-header {
+        background: linear-gradient(135deg, #0078d7, #005a9e);
+        color: white;
+        padding: 30px 35px;
+        display: flex;
+        align-items: center;
+        gap: 18px;
+    }
+
+    .booking-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 14px;
+        background: rgba(255, 255, 255, 0.18);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 30px;
+    }
+
+    .booking-header h1 {
+        margin: 0;
+        font-size: 30px;
+        font-weight: 700;
+    }
+
+    .booking-header p {
+        margin: 5px 0 0;
+        opacity: 0.9;
+        font-size: 15px;
+    }
+
+    .booking-content {
+        padding: 35px;
+    }
+
+    .section-title {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: #005a9e;
+        font-size: 21px;
+        font-weight: 700;
+        margin-bottom: 22px;
+    }
+
+        .section-title i {
+            font-size: 22px;
+            color: #0078d7;
+        }
+
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+    }
+
+    .info-box {
+        background: #f8fbff;
+        border: 1px solid #dceaf7;
+        border-radius: 12px;
+        padding: 20px;
+        min-height: 100px;
+    }
+
+    .info-label {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: #6c757d;
+        font-size: 13px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+        margin-bottom: 8px;
+    }
+
+        .info-label i {
+            color: #0078d7;
+            font-size: 16px;
+        }
+
+    .info-value {
+        color: #212529;
+        font-size: 17px;
+        font-weight: 600;
+    }
+
+    .info-secondary {
+        color: #6c757d;
+        font-size: 14px;
+        margin-top: 5px;
+    }
+
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 8px 14px;
+        border-radius: 20px;
+        font-size: 14px;
+        font-weight: 700;
+    }
+
+    .status-confirmed {
+        background: #e8f7ee;
+        color: #198754;
+    }
+
+    .status-pending {
+        background: #fff4d6;
+        color: #997404;
+    }
+
+    .status-cancelled {
+        background: #fdeaea;
+        color: #dc3545;
+    }
+
+    .status-default {
+        background: #e9ecef;
+        color: #495057;
+    }
+
+    .event-panel,
+    .venue-panel {
+        margin-top: 25px;
+        background: #f8fbff;
+        border: 1px solid #dceaf7;
+        border-radius: 12px;
+        padding: 22px;
+    }
+
+    .panel-heading {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: #005a9e;
+        font-size: 17px;
+        font-weight: 700;
+        margin-bottom: 12px;
+    }
+
+        .panel-heading i {
+            color: #0078d7;
+            font-size: 20px;
+        }
+
+    .panel-main {
+        color: #212529;
+        font-size: 18px;
+        font-weight: 700;
+    }
+
+    .panel-details {
+        color: #6c757d;
+        font-size: 14px;
+        margin-top: 6px;
+        line-height: 1.6;
+    }
+
+    .action-area {
+        margin-top: 35px;
+        padding-top: 25px;
+        border-top: 1px solid #e1e8ef;
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+
+    .btn-edit {
+        background: linear-gradient(135deg, #0078d7, #005a9e);
+        color: white;
+        border: none;
+        padding: 11px 22px;
+        border-radius: 8px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: 0.2s ease;
+    }
+
+        .btn-edit:hover {
+            color: white;
+            transform: translateY(-1px);
+            box-shadow: 0 5px 12px rgba(0, 90, 158, 0.2);
+        }
+
+    .btn-back {
+        background: #f1f5f9;
+        color: #495057;
+        border: 1px solid #d9e2ec;
+        padding: 11px 22px;
+        border-radius: 8px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: 0.2s ease;
+    }
+
+        .btn-back:hover {
+            background: #e6edf5;
+            color: #343a40;
+        }
+
+    @@media (max-width: 768px) {
+        .booking-page {
+            margin: 25px auto;
+            padding: 0 12px;
+        }
+
+        .booking-header {
+            padding: 25px 22px;
+        }
+
+            .booking-header h1 {
+                font-size: 24px;
+            }
+
+        .booking-content {
+            padding: 25px 20px;
+        }
+
+        .info-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .booking-icon {
+            width: 50px;
+            height: 50px;
+            font-size: 24px;
+        }
+    }
+</style>
+
+<div class="booking-page">
+
+    <div class="booking-card">
+
+        <!-- Header -->
+        <div class="booking-header">
+            <div class="booking-icon">
+                <i class="bi bi-calendar-check"></i>
+            </div>
+
+            <div>
+                <h1>Booking Details</h1>
+                <p>View the complete information for this booking.</p>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="booking-content">
+
+            <div class="section-title">
+                <i class="bi bi-info-circle"></i>
+                Booking Information
+            </div>
+
+            <div class="info-grid">
+
+                <!-- Booking ID -->
+                <div class="info-box">
+                    <div class="info-label">
+                        <i class="bi bi-hash"></i>
+                        Booking ID
+                    </div>
+
+                    <div class="info-value">
+                        @Model.BookingId
+                    </div>
+                </div>
+
+                <!-- Booking Date -->
+                <div class="info-box">
+                    <div class="info-label">
+                        <i class="bi bi-calendar-event"></i>
+                        Booking Date
+                    </div>
+
+                    <div class="info-value">
+                        @Model.BookingDate.ToString("dd MMMM yyyy")
+                    </div>
+
+                    <div class="info-secondary">
+                        @Model.BookingDate.ToString("HH:mm")
+                    </div>
+                </div>
+
+                <!-- Status -->
+                <div class="info-box">
+                    <div class="info-label">
+                        <i class="bi bi-clipboard-check"></i>
+                        Booking Status
+                    </div>
+
+                    <div class="info-value">
+
+                        @if (Model.Status == "Confirmed")
+                        {
+                            <span class="status-badge status-confirmed">
+                                <i class="bi bi-check-circle-fill"></i>
+                                Confirmed
+                            </span>
+                        }
+                        else if (Model.Status == "Pending")
+                        {
+                            <span class="status-badge status-pending">
+                                <i class="bi bi-clock-fill"></i>
+                                Pending
+                            </span>
+                        }
+                        else if (Model.Status == "Cancelled")
+                        {
+                            <span class="status-badge status-cancelled">
+                                <i class="bi bi-x-circle-fill"></i>
+                                Cancelled
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="status-badge status-default">
+                                <i class="bi bi-info-circle-fill"></i>
+                                @Model.Status
+                            </span>
+                        }
+
+                    </div>
+                </div>
+
+                <!-- Event -->
+                <div class="info-box">
+                    <div class="info-label">
+                        <i class="bi bi-calendar3"></i>
+                        Event
+                    </div>
+
+                    <div class="info-value">
+                        @(Model.Event?.EventName ?? "No event information available")
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Event Details -->
+            <div class="event-panel">
+
+                <div class="panel-heading">
+                    <i class="bi bi-calendar-event"></i>
+                    Event Details
+                </div>
+
+                @if (Model.Event != null)
+                {
+                    <div class="panel-main">
+                        @Model.Event.EventName
+                    </div>
+
+                    <div class="panel-details">
+                        <strong>Start:</strong>
+                        @Model.Event.StartDate.ToString("dd MMMM yyyy, HH:mm")
+                        <br />
+
+                        <strong>End:</strong>
+                        @Model.Event.EndDate.ToString("dd MMMM yyyy, HH:mm")
+                    </div>
+                }
+                else
+                {
+                    <div class="panel-details">
+                        No event information is available for this booking.
+                    </div>
+                }
+
+            </div>
+
+            <!-- Venue Details -->
+            <div class="venue-panel">
+
+                <div class="panel-heading">
+                    <i class="bi bi-geo-alt-fill"></i>
+                    Venue Details
+                </div>
+
+                @if (Model.Venue != null)
+                {
+                    <div class="panel-main">
+                        @Model.Venue.VenueName
+                    </div>
+
+                    <div class="panel-details">
+                        <i class="bi bi-geo-alt"></i>
+                        @(Model.Venue.Location ?? "Location not available")
+                    </div>
+                }
+                else
+                {
+                    <div class="panel-details">
+                        No venue information is available for this booking.
+                    </div>
+                }
+
+            </div>
+
+            <!-- Actions -->
+            <div class="action-area">
+
+                <a asp-action="Edit"
+                   asp-route-id="@Model.BookingId"
+                   class="btn-edit">
+                    <i class="bi bi-pencil-square"></i>
+                    Edit Booking
+                </a>
+
+                <a asp-action="Index"
+                   class="btn-back">
+                    <i class="bi bi-arrow-left"></i>
+                    Back to Bookings
+                </a>
+
+            </div>
+
+        </div>
+    </div>
 </div>

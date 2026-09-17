@@ -1,58 +1,538 @@
 ﻿@model EventEaseBookingSystem.Models.Event
 
 @{
-    ViewData["Title"] = "Details";
+    ViewData["Title"] = "Event Details";
 }
 
-<h1>Details</h1>
+<style>
+    body {
+        background: linear-gradient(to bottom right, #e6f0ff, #f8f9fa);
+        font-family: 'Segoe UI', Arial, sans-serif;
+        color: #333;
+        overflow-x: hidden;
+    }
 
-<div>
-    <h4>Event</h4>
-    <hr />
-    <dl class="row">
-        <!-- Event Name -->
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.EventName)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.EventName)
-        </dd>
+    .details-page {
+        max-width: 1000px;
+        margin: 50px auto;
+        padding: 0 20px;
+    }
 
-        <!-- Start Date -->
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.StartDate)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.StartDate)
-        </dd>
+    .details-card {
+        background: #ffffff;
+        border-radius: 16px;
+        box-shadow: 0 8px 25px rgba(0, 90, 158, 0.10);
+        overflow: hidden;
+        border: 1px solid #e3eaf5;
+    }
 
-        <!-- End Date -->
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.EndDate)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.EndDate)
-        </dd>
+    .details-header {
+        background: linear-gradient(135deg, #0078d7, #005a9e);
+        color: white;
+        padding: 30px 35px;
+        display: flex;
+        align-items: center;
+        gap: 18px;
+    }
 
-        <!-- Description -->
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Description)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Description)
-        </dd>
+    .event-icon {
+        width: 52px;
+        height: 52px;
+        background: rgba(255, 255, 255, 0.18);
+        border: 1px solid rgba(255, 255, 255, 0.35);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 25px;
+    }
 
-        <!-- Venue -->
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Venue)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Venue.VenueName)
-        </dd>
-    </dl>
-</div>
+    .details-header h1 {
+        margin: 0;
+        font-size: 30px;
+        font-weight: 600;
+    }
 
-<div>
-    <a asp-action="Edit" asp-route-id="@Model?.EventId">Edit</a> |
-    <a asp-action="Index">Back to List</a>
+    .details-header p {
+        margin: 5px 0 0;
+        font-size: 15px;
+        opacity: 0.9;
+    }
+
+    .details-content {
+        padding: 35px;
+    }
+
+    .section-title {
+        color: #005a9e;
+        font-size: 21px;
+        font-weight: 600;
+        margin-bottom: 22px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+        .section-title i {
+            font-size: 20px;
+            color: #0078d7;
+        }
+
+    .information-panel {
+        background: #f8fbff;
+        border: 1px solid #e1ebf7;
+        border-radius: 12px;
+        padding: 25px;
+        margin-bottom: 30px;
+    }
+
+    .info-row {
+        display: flex;
+        align-items: flex-start;
+        padding: 15px 0;
+        border-bottom: 1px solid #e5edf6;
+    }
+
+        .info-row:first-child {
+            padding-top: 0;
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+    .info-label {
+        width: 190px;
+        flex-shrink: 0;
+        color: #5c6f82;
+        font-weight: 600;
+        font-size: 14px;
+    }
+
+    .info-value {
+        color: #263746;
+        font-size: 15px;
+        font-weight: 500;
+        flex: 1;
+    }
+
+    .description-box {
+        background: white;
+        border: 1px solid #dfe8f2;
+        border-radius: 10px;
+        padding: 15px 18px;
+        line-height: 1.6;
+        white-space: pre-line;
+        color: #4b5b6b;
+    }
+
+    .schedule-section {
+        margin-bottom: 30px;
+    }
+
+    .schedule-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+    }
+
+    .schedule-card {
+        background: #f8fbff;
+        border: 1px solid #e1ebf7;
+        border-radius: 12px;
+        padding: 22px;
+    }
+
+    .schedule-label {
+        color: #6a7d90;
+        font-size: 13px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 8px;
+    }
+
+    .schedule-date {
+        color: #005a9e;
+        font-size: 18px;
+        font-weight: 600;
+    }
+
+    /* Event image section */
+    .image-section {
+        margin-bottom: 30px;
+    }
+
+    .event-image-panel {
+        background: linear-gradient(to right, #f8fbff, #eef6ff);
+        border: 1px solid #d9e8f7;
+        border-radius: 12px;
+        padding: 25px;
+    }
+
+    .event-image {
+        display: block;
+        width: 100%;
+        max-width: 650px;
+        max-height: 380px;
+        object-fit: cover;
+        border-radius: 12px;
+        border: 1px solid #d7e3ef;
+        box-shadow: 0 5px 15px rgba(0, 90, 158, 0.08);
+        margin: 0 auto;
+    }
+
+    .no-image {
+        background: #ffffff;
+        border: 1px dashed #cbd8e6;
+        border-radius: 10px;
+        padding: 35px 20px;
+        text-align: center;
+        color: #6c757d;
+        font-size: 14px;
+    }
+
+        .no-image i {
+            display: block;
+            font-size: 35px;
+            color: #9fb8d1;
+            margin-bottom: 10px;
+        }
+
+    .venue-panel {
+        background: linear-gradient(to right, #f8fbff, #eef6ff);
+        border: 1px solid #d9e8f7;
+        border-radius: 12px;
+        padding: 25px;
+        margin-bottom: 30px;
+    }
+
+    .venue-name {
+        color: #005a9e;
+        font-size: 20px;
+        font-weight: 600;
+        margin-bottom: 8px;
+    }
+
+    .venue-location {
+        color: #66788a;
+        font-size: 14px;
+    }
+
+    .no-venue {
+        color: #777;
+        font-style: italic;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 12px;
+        padding-top: 5px;
+    }
+
+    .btn-edit {
+        background: #0078d7;
+        border: none;
+        color: white;
+        padding: 11px 24px;
+        border-radius: 8px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.2s ease;
+    }
+
+        .btn-edit:hover {
+            background: #005a9e;
+            color: white;
+            transform: translateY(-1px);
+        }
+
+    .btn-back {
+        background: white;
+        border: 1px solid #cbd8e6;
+        color: #4f6478;
+        padding: 11px 24px;
+        border-radius: 8px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.2s ease;
+    }
+
+        .btn-back:hover {
+            background: #f1f6fb;
+            color: #005a9e;
+            border-color: #9fb8d1;
+        }
+
+    @@media (max-width: 768px) {
+
+        .details-page {
+            margin: 25px auto;
+            padding: 0 15px;
+        }
+
+        .details-header {
+            padding: 25px;
+        }
+
+            .details-header h1 {
+                font-size: 25px;
+            }
+
+        .details-content {
+            padding: 25px;
+        }
+
+        .info-row {
+            display: block;
+        }
+
+        .info-label {
+            width: auto;
+            margin-bottom: 6px;
+        }
+
+        .schedule-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .action-buttons {
+            flex-direction: column;
+        }
+
+        .btn-edit,
+        .btn-back {
+            text-align: center;
+        }
+
+        .event-image {
+            max-height: 280px;
+        }
+    }
+</style>
+
+
+<div class="details-page">
+
+    <div class="details-card">
+
+        <!-- Page Header -->
+        <div class="details-header">
+
+            <div class="event-icon">
+                <i class="bi bi-calendar-event"></i>
+            </div>
+
+            <div>
+                <h1>Event Details</h1>
+
+                <p>
+                    View the complete information for this event.
+                </p>
+            </div>
+
+        </div>
+
+
+        <div class="details-content">
+
+            <!-- Event Information -->
+            <div class="section-title">
+
+                <i class="bi bi-calendar-event"></i>
+
+                Event Information
+
+            </div>
+
+
+            <div class="information-panel">
+
+                <!-- Event Name -->
+                <div class="info-row">
+
+                    <div class="info-label">
+                        Event Name
+                    </div>
+
+                    <div class="info-value">
+                        @Model.EventName
+                    </div>
+
+                </div>
+
+
+                <!-- Description -->
+                <div class="info-row">
+
+                    <div class="info-label">
+                        Description
+                    </div>
+
+                    <div class="info-value">
+
+                        <div class="description-box">
+                            @Model.Description
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- Event Image -->
+            <div class="image-section">
+
+                <div class="section-title">
+
+                    <i class="bi bi-image"></i>
+
+                    Event Image
+
+                </div>
+
+
+                <div class="event-image-panel">
+
+                    @if (!string.IsNullOrWhiteSpace(Model.ImageUrl))
+                    {
+                        <img src="@Model.ImageUrl"
+                             alt="@Model.EventName"
+                             class="event-image" />
+                    }
+                    else
+                    {
+                        <div class="no-image">
+
+                            <i class="bi bi-image"></i>
+
+                            No image has been uploaded for this event yet.
+
+                        </div>
+                    }
+
+                </div>
+
+            </div>
+
+
+            <!-- Event Schedule -->
+            <div class="schedule-section">
+
+                <div class="section-title">
+
+                    <i class="bi bi-clock"></i>
+
+                    Event Schedule
+
+                </div>
+
+
+                <div class="schedule-grid">
+
+                    <!-- Start Date -->
+                    <div class="schedule-card">
+
+                        <div class="schedule-label">
+                            Start Date &amp; Time
+                        </div>
+
+                        <div class="schedule-date">
+                            @Model.StartDate.ToString("dd MMMM yyyy, HH:mm")
+                        </div>
+
+                    </div>
+
+
+                    <!-- End Date -->
+                    <div class="schedule-card">
+
+                        <div class="schedule-label">
+                            End Date &amp; Time
+                        </div>
+
+                        <div class="schedule-date">
+                            @Model.EndDate.ToString("dd MMMM yyyy, HH:mm")
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- Venue Assignment -->
+            <div class="section-title">
+
+                <i class="bi bi-building"></i>
+
+                Venue Assignment
+
+            </div>
+
+
+            <div class="venue-panel">
+
+                @if (Model.Venue != null)
+                {
+                    <div class="venue-name">
+                        @Model.Venue.VenueName
+                    </div>
+
+                    @if (!string.IsNullOrWhiteSpace(Model.Venue.Location))
+                    {
+                        <div class="venue-location">
+
+                            <i class="bi bi-geo-alt"></i>
+
+                            @Model.Venue.Location
+
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div class="no-venue">
+
+                        No venue has been assigned to this event.
+
+                    </div>
+                }
+
+            </div>
+
+
+            <!-- Action Buttons -->
+            <div class="action-buttons">
+
+                <a asp-action="Edit"
+                   asp-route-id="@Model.EventId"
+                   class="btn-edit">
+
+                    <i class="bi bi-pencil"></i>
+
+                    Edit Event
+
+                </a>
+
+
+                <a asp-action="Index"
+                   class="btn-back">
+
+                    <i class="bi bi-arrow-left"></i>
+
+                    Back to Events
+
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
 </div>

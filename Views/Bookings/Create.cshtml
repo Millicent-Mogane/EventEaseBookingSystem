@@ -1,55 +1,414 @@
 ﻿@model EventEaseBookingSystem.Models.Booking
 
 @{
-    ViewData["Title"] = "Create";
+    ViewData["Title"] = "Create Booking";
 }
 
-<h1>Create</h1>
+<style>
+    body {
+        background: linear-gradient(to bottom right, #e6f0ff, #f8f9fa);
+        font-family: 'Segoe UI', Arial, sans-serif;
+        color: #333;
+        overflow-x: hidden;
+    }
 
-<h4>Booking</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Create">
-            <div asp-validation-summary="All" class="text-danger"></div>
-            
+    .booking-page {
+        max-width: 850px;
+        margin: 50px auto;
+        padding: 0 20px;
+    }
 
-            <!-- Booking Date -->
-            <div class="form-group">
-                <label asp-for="BookingDate" class="control-label"></label>
-                <input asp-for="BookingDate" class="form-control" type="datetime-local" />
-                <span asp-validation-for="BookingDate" class="text-danger"></span>
+    .booking-card {
+        background: #ffffff;
+        border-radius: 16px;
+        box-shadow: 0 8px 25px rgba(0, 90, 158, 0.10);
+        border: 1px solid #e3eaf5;
+        overflow: hidden;
+    }
+
+    .booking-header {
+        background: linear-gradient(135deg, #0078d7, #005a9e);
+        color: white;
+        padding: 30px 35px;
+        display: flex;
+        align-items: center;
+        gap: 18px;
+    }
+
+    .booking-icon {
+        width: 52px;
+        height: 52px;
+        background: rgba(255, 255, 255, 0.18);
+        border: 1px solid rgba(255, 255, 255, 0.35);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 26px;
+    }
+
+    .booking-header h1 {
+        margin: 0;
+        font-size: 30px;
+        font-weight: 600;
+    }
+
+    .booking-header p {
+        margin: 5px 0 0;
+        font-size: 15px;
+        opacity: 0.9;
+    }
+
+    .booking-content {
+        padding: 35px;
+    }
+
+    .section-title {
+        color: #005a9e;
+        font-size: 21px;
+        font-weight: 600;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+        .section-title i {
+            color: #0078d7;
+            font-size: 20px;
+        }
+
+    .form-panel {
+        background: #f8fbff;
+        border: 1px solid #e1ebf7;
+        border-radius: 12px;
+        padding: 25px;
+        margin-bottom: 25px;
+    }
+
+    .form-group {
+        margin-bottom: 22px;
+    }
+
+        .form-group:last-child {
+            margin-bottom: 0;
+        }
+
+    .form-label {
+        color: #536779;
+        font-size: 14px;
+        font-weight: 600;
+        margin-bottom: 7px;
+    }
+
+    .form-control {
+        border: 1px solid #ccd9e6;
+        border-radius: 8px;
+        padding: 10px 12px;
+        min-height: 44px;
+        background: white;
+    }
+
+        .form-control:focus {
+            border-color: #0078d7;
+            box-shadow: 0 0 0 0.15rem rgba(0, 120, 215, 0.12);
+        }
+
+    select.form-control {
+        cursor: pointer;
+    }
+
+    .field-help {
+        color: #718396;
+        font-size: 13px;
+        margin-top: 6px;
+    }
+
+    /* Validation summary stays hidden when there are no errors */
+    .validation-summary:empty {
+        display: none;
+    }
+
+    .validation-summary {
+        background: #fff1f1;
+        border-left: 4px solid #dc3545;
+        border-radius: 8px;
+        padding: 12px 15px;
+        margin-bottom: 22px;
+        color: #9b2c2c;
+    }
+
+        .validation-summary ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+
+        .validation-summary li {
+            margin-bottom: 4px;
+        }
+
+            .validation-summary li:last-child {
+                margin-bottom: 0;
+            }
+
+    .field-validation-error {
+        display: block;
+        color: #c0392b;
+        font-size: 13px;
+        margin-top: 6px;
+    }
+
+    .booking-note {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        background: #eef6ff;
+        border: 1px solid #d7e8f8;
+        border-radius: 10px;
+        padding: 15px 17px;
+        margin-bottom: 25px;
+        color: #536779;
+        font-size: 14px;
+        line-height: 1.5;
+    }
+
+        .booking-note i {
+            color: #0078d7;
+            font-size: 18px;
+            margin-top: 1px;
+        }
+
+    .action-buttons {
+        display: flex;
+        gap: 12px;
+        padding-top: 5px;
+    }
+
+    .btn-create {
+        background: #0078d7;
+        border: none;
+        color: white;
+        padding: 11px 25px;
+        border-radius: 8px;
+        font-weight: 600;
+        transition: all 0.2s ease;
+    }
+
+        .btn-create:hover {
+            background: #005a9e;
+            color: white;
+            transform: translateY(-1px);
+        }
+
+    .btn-back {
+        background: white;
+        border: 1px solid #cbd8e6;
+        color: #536779;
+        padding: 11px 25px;
+        border-radius: 8px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.2s ease;
+    }
+
+        .btn-back:hover {
+            background: #f1f6fb;
+            color: #005a9e;
+            border-color: #9fb8d1;
+        }
+
+    @@media (max-width: 600px) {
+
+        .booking-page {
+            margin: 25px auto;
+            padding: 0 15px;
+        }
+
+        .booking-header {
+            padding: 25px;
+        }
+
+            .booking-header h1 {
+                font-size: 25px;
+            }
+
+        .booking-content {
+            padding: 25px;
+        }
+
+        .form-panel {
+            padding: 20px;
+        }
+
+        .action-buttons {
+            flex-direction: column;
+        }
+
+        .btn-create,
+        .btn-back {
+            text-align: center;
+            width: 100%;
+        }
+    }
+</style>
+
+<div class="booking-page">
+
+    <div class="booking-card">
+
+        <!-- Page Header -->
+        <div class="booking-header">
+
+            <div class="booking-icon">
+                <i class="bi bi-calendar-plus"></i>
             </div>
 
-            <!-- Event Dropdown -->
-            <div class="form-group">
-                <label asp-for="EventId" class="control-label"></label>
-                <select asp-for="EventId" class="form-control" asp-items="@(ViewData["EventId"] as SelectList)"></select>
-                <span asp-validation-for="EventId" class="text-danger"></span>
+            <div>
+                <h1>Create Booking</h1>
+                <p>Create a new booking for an event and venue.</p>
             </div>
 
-            <!-- Venue Dropdown -->
-            <div class="form-group">
-                <label asp-for="VenueId" class="control-label"></label>
-                <select asp-for="VenueId" class="form-control" asp-items="@(ViewData["VenueId"] as SelectList)"></select>
-                <span asp-validation-for="VenueId" class="text-danger"></span>
-            </div>
+        </div>
 
+        <div class="booking-content">
 
-            <!-- Submit Button -->
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
-            </div>
-        </form>
+            <form asp-action="Create" method="post">
+
+                <!-- Validation Summary -->
+                <div asp-validation-summary="All"
+                     class="validation-summary">
+                </div>
+
+                <!-- Booking Information -->
+                <div class="section-title">
+                    <i class="bi bi-calendar-check"></i>
+                    Booking Information
+                </div>
+
+                <div class="form-panel">
+
+                    <!-- Event -->
+                    <div class="form-group">
+
+                        <label asp-for="EventId"
+                               class="form-label">
+                            Event
+                        </label>
+
+                        <select asp-for="EventId"
+                                class="form-control"
+                                asp-items="@(ViewData["EventId"] as SelectList)">
+                        </select>
+
+                        <span asp-validation-for="EventId"
+                              class="field-validation-error">
+                        </span>
+
+                        <div class="field-help">
+                            Select the event that this booking is for.
+                        </div>
+
+                    </div>
+
+                    <!-- Venue -->
+                    <div class="form-group">
+
+                        <label asp-for="VenueId"
+                               class="form-label">
+                            Venue
+                        </label>
+
+                        <select asp-for="VenueId"
+                                class="form-control"
+                                asp-items="@(ViewData["VenueId"] as SelectList)">
+                        </select>
+
+                        <span asp-validation-for="VenueId"
+                              class="field-validation-error">
+                        </span>
+
+                        <div class="field-help">
+                            Select the venue where the event will take place.
+                        </div>
+
+                    </div>
+
+                    <!-- Status -->
+                    <div class="form-group">
+
+                        <label asp-for="Status"
+                               class="form-label">
+                            Booking Status
+                        </label>
+
+                        <select asp-for="Status"
+                                class="form-control">
+
+                            <option value="Confirmed">
+                                Confirmed
+                            </option>
+
+                            <option value="Pending">
+                                Pending
+                            </option>
+
+                            <option value="Cancelled">
+                                Cancelled
+                            </option>
+
+                        </select>
+
+                        <span asp-validation-for="Status"
+                              class="field-validation-error">
+                        </span>
+
+                    </div>
+
+                </div>
+
+                <!-- Booking Information Note -->
+                <div class="booking-note">
+
+                    <i class="bi bi-info-circle"></i>
+
+                    <div>
+                        <strong>Booking date:</strong>
+                        The booking date is automatically recorded when the booking is created.
+                        The system also checks the selected event and venue to help prevent
+                        conflicting bookings.
+                    </div>
+
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="action-buttons">
+
+                    <button type="submit"
+                            class="btn-create">
+                        <i class="bi bi-check-lg"></i>
+                        Create Booking
+                    </button>
+
+                    <a asp-action="Index"
+                       class="btn-back">
+                        <i class="bi bi-arrow-left"></i>
+                        Back to Bookings
+                    </a>
+
+                </div>
+
+            </form>
+
+        </div>
+
     </div>
-</div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
 </div>
 
 @section Scripts {
+
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
+
 }

@@ -1,42 +1,474 @@
 ﻿@model EventEaseBookingSystem.Models.Venue
 
 @{
-    ViewData["Title"] = "Details";
+    ViewData["Title"] = "Venue Details";
 }
 
-<h1>Details</h1>
+<style>
+    body {
+        background: linear-gradient(to bottom right, #e6f0ff, #f8f9fa);
+        font-family: 'Segoe UI', Arial, sans-serif;
+        color: #333;
+    }
 
-<div>
-    <h4>Venue</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.VenueName)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.VenueName)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Location)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Location)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Capacity)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Capacity)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.ImageUrl)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.ImageUrl)
-        </dd>
-    </dl>
-</div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model?.VenueId">Edit</a> |
-    <a asp-action="Index">Back to List</a>
+    .venue-page {
+        padding: 45px 15px 60px;
+    }
+
+    .venue-card {
+        max-width: 1050px;
+        margin: 0 auto;
+        background: #ffffff;
+        border-radius: 14px;
+        box-shadow: 0 5px 18px rgba(0, 0, 0, 0.10);
+        overflow: hidden;
+    }
+
+    .venue-header {
+        padding: 30px 40px 25px;
+        border-bottom: 1px solid #e9ecef;
+        background: linear-gradient(to right, #ffffff, #f7fbff);
+    }
+
+        .venue-header h1 {
+            margin: 0 0 6px;
+            font-size: 2rem;
+            font-weight: 700;
+            color: #1f2937;
+        }
+
+        .venue-header p {
+            margin: 0;
+            color: #6c757d;
+            font-size: 1rem;
+        }
+
+    .venue-header-icon {
+        color: #0078d7;
+        margin-right: 9px;
+    }
+
+    .venue-content {
+        padding: 35px 40px 40px;
+    }
+
+    .details-panel {
+        height: 100%;
+        padding: 25px;
+        border: 1px solid #e1eaf3;
+        border-radius: 12px;
+        background: #ffffff;
+    }
+
+    .image-panel {
+        height: 100%;
+        padding: 25px;
+        border: 1px solid #dce8f5;
+        border-radius: 12px;
+        background: #f8fbff;
+    }
+
+    .panel-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #1f2937;
+        margin-bottom: 22px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #e6f0ff;
+    }
+
+    .detail-item {
+        display: flex;
+        align-items: flex-start;
+        padding: 17px 0;
+        border-bottom: 1px solid #edf0f3;
+    }
+
+        .detail-item:last-child {
+            border-bottom: none;
+        }
+
+    .detail-icon {
+        width: 42px;
+        height: 42px;
+        min-width: 42px;
+        border-radius: 50%;
+        background: #e6f0ff;
+        color: #0078d7;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.1rem;
+        margin-right: 14px;
+    }
+
+    .detail-label {
+        display: block;
+        font-size: 0.82rem;
+        font-weight: 600;
+        color: #6c757d;
+        text-transform: uppercase;
+        margin-bottom: 3px;
+        letter-spacing: 0.3px;
+    }
+
+    .detail-value {
+        display: block;
+        font-size: 1.05rem;
+        font-weight: 600;
+        color: #212529;
+    }
+
+    .venue-name {
+        font-size: 1.4rem;
+        font-weight: 700;
+        color: #005a9e;
+    }
+
+    .image-container {
+        width: 100%;
+        min-height: 320px;
+        border-radius: 10px;
+        background: #eef4fa;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        border: 1px solid #dce8f5;
+    }
+
+    .venue-image {
+        width: 100%;
+        max-height: 380px;
+        object-fit: cover;
+        display: block;
+    }
+
+    .no-image {
+        text-align: center;
+        color: #6c757d;
+        padding: 40px 20px;
+    }
+
+        .no-image i {
+            display: block;
+            font-size: 3rem;
+            color: #9bb8d3;
+            margin-bottom: 12px;
+        }
+
+    .image-caption {
+        margin-top: 12px;
+        text-align: center;
+        color: #6c757d;
+        font-size: 0.85rem;
+    }
+
+    .image-link {
+        color: #0078d7;
+        text-decoration: none;
+        font-weight: 600;
+    }
+
+        .image-link:hover {
+            text-decoration: underline;
+        }
+
+    .button-section {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        margin-top: 35px;
+        padding-top: 25px;
+        border-top: 1px solid #e9ecef;
+    }
+
+    .btn-edit {
+        background-color: #0d6efd;
+        border-color: #0d6efd;
+        color: #ffffff;
+        padding: 10px 22px;
+        border-radius: 7px;
+        font-weight: 600;
+        text-decoration: none;
+    }
+
+        .btn-edit:hover {
+            background-color: #0b5ed7;
+            border-color: #0a58ca;
+            color: #ffffff;
+        }
+
+    .btn-back {
+        background-color: #ffffff;
+        border: 1px solid #6c757d;
+        color: #495057;
+        padding: 10px 22px;
+        border-radius: 7px;
+        font-weight: 600;
+        text-decoration: none;
+    }
+
+        .btn-back:hover {
+            background-color: #f1f3f5;
+            color: #212529;
+        }
+
+    @@media (max-width: 768px) {
+
+        .venue-page {
+            padding: 25px 10px 40px;
+        }
+
+        .venue-header {
+            padding: 25px;
+        }
+
+        .venue-content {
+            padding: 25px;
+        }
+
+        .venue-header h1 {
+            font-size: 1.7rem;
+        }
+
+        .image-panel {
+            margin-top: 10px;
+        }
+
+        .button-section {
+            justify-content: stretch;
+            flex-direction: column-reverse;
+        }
+
+            .button-section .btn {
+                width: 100%;
+                text-align: center;
+            }
+    }
+</style>
+
+
+<div class="venue-page">
+
+    <div class="venue-card">
+
+        <!-- Page Header -->
+        <div class="venue-header">
+
+            <h1>
+                <i class="bi bi-building venue-header-icon"></i>
+                Venue Details
+            </h1>
+
+            <p>
+                View detailed information about this EventEase venue.
+            </p>
+
+        </div>
+
+
+        <!-- Venue Content -->
+        <div class="venue-content">
+
+            <div class="row g-4">
+
+                <!-- Venue Information -->
+                <div class="col-lg-6">
+
+                    <div class="details-panel">
+
+                        <div class="panel-title">
+
+                            <i class="bi bi-info-circle me-2"></i>
+                            Venue Information
+
+                        </div>
+
+
+                        <!-- Venue Name -->
+                        <div class="detail-item">
+
+                            <div class="detail-icon">
+                                <i class="bi bi-building"></i>
+                            </div>
+
+                            <div>
+
+                                <span class="detail-label">
+                                    Venue Name
+                                </span>
+
+                                <span class="detail-value venue-name">
+                                    @Model.VenueName
+                                </span>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- Location -->
+                        <div class="detail-item">
+
+                            <div class="detail-icon">
+                                <i class="bi bi-geo-alt"></i>
+                            </div>
+
+                            <div>
+
+                                <span class="detail-label">
+                                    Location
+                                </span>
+
+                                <span class="detail-value">
+                                    @Model.Location
+                                </span>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- Capacity -->
+                        <div class="detail-item">
+
+                            <div class="detail-icon">
+                                <i class="bi bi-people"></i>
+                            </div>
+
+                            <div>
+
+                                <span class="detail-label">
+                                    Capacity
+                                </span>
+
+                                <span class="detail-value">
+                                    @Model.Capacity guests
+                                </span>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- Hourly Rate -->
+                        <div class="detail-item">
+
+                            <div class="detail-icon">
+                                <i class="bi bi-currency-exchange"></i>
+                            </div>
+
+                            <div>
+
+                                <span class="detail-label">
+                                    Hourly Rate
+                                </span>
+
+                                <span class="detail-value">
+                                    R @Model.HourlyRate.ToString("N2")
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Venue Image -->
+                <div class="col-lg-6">
+
+                    <div class="image-panel">
+
+                        <div class="panel-title">
+
+                            <i class="bi bi-image me-2"></i>
+                            Venue Image
+
+                        </div>
+
+
+                        <div class="image-container">
+
+                            @if (!string.IsNullOrWhiteSpace(Model.ImageUrl))
+                            {
+                                <a href="@Model.ImageUrl"
+                                   target="_blank"
+                                   title="Open venue image">
+
+                                    <img src="@Model.ImageUrl"
+                                         alt="@Model.VenueName"
+                                         class="venue-image" />
+
+                                </a>
+                            }
+                            else
+                            {
+                                <div class="no-image">
+
+                                    <i class="bi bi-image"></i>
+
+                                    <div>
+                                        No venue image is currently available.
+                                    </div>
+
+                                </div>
+                            }
+
+                        </div>
+
+
+                        @if (!string.IsNullOrWhiteSpace(Model.ImageUrl))
+                        {
+                            <div class="image-caption">
+
+                                <a href="@Model.ImageUrl"
+                                   target="_blank"
+                                   class="image-link">
+
+                                    <i class="bi bi-box-arrow-up-right me-1"></i>
+                                    Open full-size image
+
+                                </a>
+
+                            </div>
+                        }
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- Action Buttons -->
+            <div class="button-section">
+
+                <a asp-action="Index"
+                   class="btn btn-back">
+
+                    <i class="bi bi-arrow-left me-1"></i>
+                    Back to Venues
+
+                </a>
+
+
+                <a asp-action="Edit"
+                   asp-route-id="@Model.VenueId"
+                   class="btn btn-edit">
+
+                    <i class="bi bi-pencil-square me-1"></i>
+                    Edit Venue
+
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
 </div>

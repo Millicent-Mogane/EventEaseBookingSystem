@@ -1,49 +1,542 @@
 ﻿@model EventEaseBookingSystem.Models.Venue
 
 @{
-    ViewData["Title"] = "Edit";
+    ViewData["Title"] = "Edit Venue";
 }
 
-<h1>Edit</h1>
+<style>
+    body {
+        background: linear-gradient(to bottom right, #e6f0ff, #f8f9fa);
+        font-family: 'Segoe UI', Arial, sans-serif;
+        color: #333;
+    }
 
-<h4>Venue</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Edit">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="VenueId" />
-            <div class="form-group">
-                <label asp-for="VenueName" class="control-label"></label>
-                <input asp-for="VenueName" class="form-control" />
-                <span asp-validation-for="VenueName" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Location" class="control-label"></label>
-                <input asp-for="Location" class="form-control" />
-                <span asp-validation-for="Location" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Capacity" class="control-label"></label>
-                <input asp-for="Capacity" class="form-control" />
-                <span asp-validation-for="Capacity" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="ImageUrl" class="control-label"></label>
-                <input asp-for="ImageUrl" class="form-control" />
-                <span asp-validation-for="ImageUrl" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
-            </div>
-        </form>
+    .venue-page {
+        padding: 45px 15px 60px;
+    }
+
+    .venue-card {
+        max-width: 1050px;
+        margin: 0 auto;
+        background: #ffffff;
+        border-radius: 14px;
+        box-shadow: 0 5px 18px rgba(0, 0, 0, 0.10);
+        overflow: hidden;
+    }
+
+    .venue-header {
+        padding: 30px 40px 25px;
+        border-bottom: 1px solid #e9ecef;
+        background: linear-gradient(to right, #ffffff, #f7fbff);
+    }
+
+        .venue-header h1 {
+            margin: 0 0 6px;
+            font-size: 2rem;
+            font-weight: 700;
+            color: #1f2937;
+        }
+
+        .venue-header p {
+            margin: 0;
+            color: #6c757d;
+            font-size: 1rem;
+        }
+
+    .venue-header-icon {
+        color: #0078d7;
+        margin-right: 9px;
+    }
+
+    .venue-form {
+        padding: 35px 40px 40px;
+    }
+
+    .section-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #1f2937;
+        margin-bottom: 22px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #e6f0ff;
+    }
+
+    .form-label {
+        font-weight: 600;
+        color: #374151;
+        margin-bottom: 7px;
+    }
+
+        .form-label i {
+            color: #0078d7;
+            margin-right: 6px;
+        }
+
+    .form-control {
+        border: 1px solid #ced4da;
+        border-radius: 7px;
+        padding: 10px 12px;
+        min-height: 44px;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+        .form-control:focus {
+            border-color: #0078d7;
+            box-shadow: 0 0 0 0.2rem rgba(0, 120, 215, 0.12);
+        }
+
+    .image-panel {
+        height: 100%;
+        padding: 25px;
+        border: 1px solid #dce8f5;
+        border-radius: 12px;
+        background: #f8fbff;
+    }
+
+    .image-panel-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #1f2937;
+        margin-bottom: 18px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #e6f0ff;
+    }
+
+    .current-image-container {
+        width: 100%;
+        min-height: 240px;
+        border-radius: 10px;
+        background: #eef4fa;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        margin-bottom: 20px;
+        border: 1px solid #dce8f5;
+    }
+
+    .current-image {
+        width: 100%;
+        max-height: 300px;
+        object-fit: cover;
+        display: block;
+    }
+
+    .no-image {
+        text-align: center;
+        color: #6c757d;
+        padding: 40px 20px;
+    }
+
+        .no-image i {
+            font-size: 2.5rem;
+            color: #9bb8d3;
+            display: block;
+            margin-bottom: 10px;
+        }
+
+    .image-link {
+        display: inline-block;
+        margin-top: 8px;
+        color: #0078d7;
+        text-decoration: none;
+        font-size: 0.9rem;
+        font-weight: 600;
+    }
+
+        .image-link:hover {
+            text-decoration: underline;
+        }
+
+    .upload-section {
+        margin-top: 20px;
+        padding: 18px;
+        background: #ffffff;
+        border: 1px dashed #b8d4ee;
+        border-radius: 10px;
+    }
+
+        .upload-section h6 {
+            font-weight: 700;
+            color: #374151;
+            margin-bottom: 6px;
+        }
+
+        .upload-section p {
+            margin-bottom: 12px;
+            color: #6c757d;
+            font-size: 0.85rem;
+        }
+
+    .field-help {
+        display: block;
+        margin-top: 7px;
+        color: #6c757d;
+        font-size: 0.82rem;
+    }
+
+    .validation-summary {
+        margin-bottom: 25px;
+    }
+
+    .button-section {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        margin-top: 35px;
+        padding-top: 25px;
+        border-top: 1px solid #e9ecef;
+    }
+
+    .btn-save {
+        background-color: #0d6efd;
+        border-color: #0d6efd;
+        color: #ffffff;
+        padding: 10px 22px;
+        border-radius: 7px;
+        font-weight: 600;
+    }
+
+        .btn-save:hover {
+            background-color: #0b5ed7;
+            border-color: #0a58ca;
+            color: #ffffff;
+        }
+
+    .btn-cancel {
+        background-color: #ffffff;
+        border: 1px solid #6c757d;
+        color: #495057;
+        padding: 10px 22px;
+        border-radius: 7px;
+        font-weight: 600;
+        text-decoration: none;
+    }
+
+        .btn-cancel:hover {
+            background-color: #f1f3f5;
+            color: #212529;
+        }
+
+    .edit-note {
+        margin-top: 18px;
+        color: #6c757d;
+        font-size: 0.85rem;
+    }
+
+    @@media (max-width: 768px) {
+
+        .venue-page {
+            padding: 25px 10px 40px;
+        }
+
+        .venue-header {
+            padding: 25px;
+        }
+
+        .venue-form {
+            padding: 25px;
+        }
+
+        .venue-header h1 {
+            font-size: 1.7rem;
+        }
+
+        .image-panel {
+            margin-top: 10px;
+        }
+
+        .button-section {
+            justify-content: stretch;
+            flex-direction: column-reverse;
+        }
+
+            .button-section .btn {
+                width: 100%;
+                text-align: center;
+            }
+    }
+</style>
+
+
+<div class="venue-page">
+
+    <div class="venue-card">
+
+        <!-- Page Header -->
+        <div class="venue-header">
+
+            <h1>
+                <i class="bi bi-pencil-square venue-header-icon"></i>
+                Edit Venue
+            </h1>
+
+            <p>
+                Update the details and image for this EventEase venue.
+            </p>
+
+        </div>
+
+
+        <!-- Form -->
+        <div class="venue-form">
+
+            <form asp-action="Edit"
+                  method="post"
+                  enctype="multipart/form-data">
+
+                <!-- Validation Summary -->
+                <div asp-validation-summary="ModelOnly"
+                     class="text-danger validation-summary">
+                </div>
+
+
+                <!-- Venue ID -->
+                <input type="hidden"
+                       asp-for="VenueId" />
+
+
+                <div class="row g-4">
+
+                    <!-- LEFT SIDE: VENUE DETAILS -->
+                    <div class="col-lg-6">
+
+                        <div class="section-title">
+                            <i class="bi bi-info-circle me-2"></i>
+                            Venue Details
+                        </div>
+
+
+                        <!-- Venue Name -->
+                        <div class="mb-4">
+
+                            <label asp-for="VenueName"
+                                   class="form-label">
+
+                                <i class="bi bi-building"></i>
+                                Venue Name
+
+                            </label>
+
+                            <input asp-for="VenueName"
+                                   class="form-control"
+                                   placeholder="Enter venue name" />
+
+                            <span asp-validation-for="VenueName"
+                                  class="text-danger">
+                            </span>
+
+                        </div>
+
+
+                        <!-- Location -->
+                        <div class="mb-4">
+
+                            <label asp-for="Location"
+                                   class="form-label">
+
+                                <i class="bi bi-geo-alt"></i>
+                                Location
+
+                            </label>
+
+                            <input asp-for="Location"
+                                   class="form-control"
+                                   placeholder="Enter venue location" />
+
+                            <span asp-validation-for="Location"
+                                  class="text-danger">
+                            </span>
+
+                        </div>
+
+
+                        <!-- Capacity -->
+                        <div class="mb-4">
+
+                            <label asp-for="Capacity"
+                                   class="form-label">
+
+                                <i class="bi bi-people"></i>
+                                Capacity
+
+                            </label>
+
+                            <input asp-for="Capacity"
+                                   class="form-control"
+                                   placeholder="Enter maximum capacity" />
+
+                            <span asp-validation-for="Capacity"
+                                  class="text-danger">
+                            </span>
+
+                        </div>
+
+
+                        <!-- Hourly Rate -->
+                        <div class="mb-4">
+
+                            <label asp-for="HourlyRate"
+                                   class="form-label">
+
+                                <i class="bi bi-currency-exchange"></i>
+                                Hourly Rate
+
+                            </label>
+
+                            <input asp-for="HourlyRate"
+                                   class="form-control"
+                                   placeholder="Enter hourly rate" />
+
+                            <span asp-validation-for="HourlyRate"
+                                  class="text-danger">
+                            </span>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- RIGHT SIDE: VENUE IMAGE -->
+                    <div class="col-lg-6">
+
+                        <div class="image-panel">
+
+                            <div class="image-panel-title">
+
+                                <i class="bi bi-image me-2"></i>
+                                Venue Image
+
+                            </div>
+
+
+                            <!-- Current Image -->
+                            <div class="current-image-container">
+
+                                @if (!string.IsNullOrWhiteSpace(Model.ImageUrl))
+                                {
+                                    <a href="@Model.ImageUrl"
+                                       target="_blank"
+                                       title="Open current image">
+
+                                        <img src="@Model.ImageUrl"
+                                             alt="@Model.VenueName"
+                                             class="current-image" />
+
+                                    </a>
+                                }
+                                else
+                                {
+                                    <div class="no-image">
+
+                                        <i class="bi bi-image"></i>
+
+                                        <div>
+                                            No venue image is currently available.
+                                        </div>
+
+                                    </div>
+                                }
+
+                            </div>
+
+
+                            @if (!string.IsNullOrWhiteSpace(Model.ImageUrl))
+                            {
+                                <div class="text-center">
+
+                                    <a href="@Model.ImageUrl"
+                                       target="_blank"
+                                       class="image-link">
+
+                                        <i class="bi bi-box-arrow-up-right me-1"></i>
+                                        View current image
+
+                                    </a>
+
+                                </div>
+                            }
+
+
+                            <!-- Replace Image -->
+                            <div class="upload-section">
+
+                                <h6>
+                                    <i class="bi bi-cloud-arrow-up me-1"></i>
+                                    Replace Venue Image
+                                </h6>
+
+                                <p>
+                                    Choose a new image if you want to replace
+                                    the current venue image.
+                                </p>
+
+                                <input type="file"
+                                       id="imageFile"
+                                       name="imageFile"
+                                       class="form-control"
+                                       accept=".jpg,.jpeg,.png,.gif,.webp" />
+
+                                <span class="field-help">
+                                    JPEG, PNG, GIF or WebP. Maximum size: 5 MB.
+                                    The new image will be stored using Azure Blob Storage.
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Buttons -->
+                <div class="button-section">
+
+                    <a asp-action="Index"
+                       class="btn btn-cancel">
+
+                        <i class="bi bi-x-circle me-1"></i>
+                        Cancel
+
+                    </a>
+
+
+                    <button type="submit"
+                            class="btn btn-save">
+
+                        <i class="bi bi-check-circle me-1"></i>
+                        Save Changes
+
+                    </button>
+
+                </div>
+
+
+                <!-- Information Note -->
+                <div class="edit-note">
+
+                    <i class="bi bi-info-circle me-1"></i>
+
+                    Update only the information you want to change.
+                    Leave the image upload empty to keep the current image.
+
+                </div>
+
+            </form>
+
+        </div>
+
     </div>
+
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
 }

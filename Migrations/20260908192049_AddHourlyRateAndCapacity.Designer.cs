@@ -4,6 +4,7 @@ using EventEaseBookingSystem.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EventEaseBookingSystem.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260908192049_AddHourlyRateAndCapacity")]
+    partial class AddHourlyRateAndCapacity
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -35,10 +38,6 @@ namespace EventEaseBookingSystem.Migrations
 
                     b.Property<int>("EventId")
                         .HasColumnType("int");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("VenueId")
                         .HasColumnType("int");
@@ -71,9 +70,6 @@ namespace EventEaseBookingSystem.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("ImageUrl")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<DateTime>("StartDate")
                         .HasColumnType("datetime2");
 
@@ -99,7 +95,6 @@ namespace EventEaseBookingSystem.Migrations
                         .HasColumnType("int");
 
                     b.Property<decimal>("HourlyRate")
-                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("ImageUrl")
@@ -123,8 +118,8 @@ namespace EventEaseBookingSystem.Migrations
                         {
                             VenueId = 1,
                             Capacity = 500,
-                            HourlyRate = 800m,
-                            ImageUrl = "/images/cityhall.png",
+                            HourlyRate = 0m,
+                            ImageUrl = "cityhall.png",
                             Location = "Downtown Johannesburg",
                             VenueName = "City Hall"
                         },
@@ -132,8 +127,8 @@ namespace EventEaseBookingSystem.Migrations
                         {
                             VenueId = 2,
                             Capacity = 1200,
-                            HourlyRate = 1500m,
-                            ImageUrl = "/images/conferencecenter.png",
+                            HourlyRate = 0m,
+                            ImageUrl = "conferencecenter.png",
                             Location = "Sandton Business District",
                             VenueName = "Conference Center"
                         },
@@ -141,8 +136,8 @@ namespace EventEaseBookingSystem.Migrations
                         {
                             VenueId = 3,
                             Capacity = 800,
-                            HourlyRate = 1200m,
-                            ImageUrl = "/images/grandhotelballroom.png",
+                            HourlyRate = 0m,
+                            ImageUrl = "grandhotelballroom.png",
                             Location = "Pretoria Central",
                             VenueName = "Grand Hotel Ballroom"
                         },
@@ -150,8 +145,8 @@ namespace EventEaseBookingSystem.Migrations
                         {
                             VenueId = 4,
                             Capacity = 350,
-                            HourlyRate = 500m,
-                            ImageUrl = "/images/communitypark.png",
+                            HourlyRate = 0m,
+                            ImageUrl = "communitypark.png",
                             Location = "Cape Town Waterfront",
                             VenueName = "Community Park"
                         },
@@ -159,8 +154,8 @@ namespace EventEaseBookingSystem.Migrations
                         {
                             VenueId = 5,
                             Capacity = 5000,
-                            HourlyRate = 2500m,
-                            ImageUrl = "/images/sportsarena.png",
+                            HourlyRate = 0m,
+                            ImageUrl = "sportsarena.png",
                             Location = "Soweto, Johannesburg",
                             VenueName = "Sports Arena"
                         });

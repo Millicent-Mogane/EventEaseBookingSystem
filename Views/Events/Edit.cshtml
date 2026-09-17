@@ -1,68 +1,553 @@
 ﻿@model EventEaseBookingSystem.Models.Event
 
 @{
-    ViewData["Title"] = "Edit";
+    ViewData["Title"] = "Edit Event";
 }
 
-<h1>Edit</h1>
+<style>
+    body {
+        background: linear-gradient(to bottom right, #e6f0ff, #f8f9fa);
+        font-family: 'Segoe UI', Arial, sans-serif;
+        color: #333;
+    }
 
-<h4>Event</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Edit">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="EventId" />
+    .event-page {
+        max-width: 1000px;
+        margin: 50px auto;
+        padding: 0 20px;
+    }
 
-            <!-- Event Name -->
-            <div class="form-group">
-                <label asp-for="EventName" class="control-label"></label>
-                <input asp-for="EventName" class="form-control" />
-                <span asp-validation-for="EventName" class="text-danger"></span>
+    .event-card {
+        background: rgba(255, 255, 255, 0.97);
+        border-radius: 16px;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.10);
+        overflow: hidden;
+    }
+
+    .event-header {
+        background: linear-gradient(to right, #eef6ff, #ffffff);
+        border-bottom: 1px solid #dce8f5;
+        padding: 30px 35px;
+    }
+
+    .event-icon {
+        width: 58px;
+        height: 58px;
+        border-radius: 50%;
+        background-color: #dceeff;
+        color: #0078d7;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 27px;
+        font-weight: bold;
+        margin-bottom: 15px;
+    }
+
+    .event-header h1 {
+        font-weight: 700;
+        margin-bottom: 8px;
+        color: #343a40;
+    }
+
+    .event-header p {
+        margin-bottom: 0;
+        color: #6c757d;
+    }
+
+    .event-content {
+        padding: 30px 35px 35px;
+    }
+
+    .section-title {
+        font-size: 18px;
+        font-weight: 600;
+        color: #005a9e;
+        margin-bottom: 20px;
+    }
+
+    .form-label {
+        font-weight: 600;
+        color: #495057;
+        margin-bottom: 7px;
+    }
+
+    .form-control,
+    .form-select {
+        border: 1px solid #d5deea;
+        border-radius: 8px;
+        padding: 11px 14px;
+        min-height: 45px;
+        box-shadow: none;
+    }
+
+        .form-control:focus,
+        .form-select:focus {
+            border-color: #80bdff;
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.10);
+        }
+
+    textarea.form-control {
+        min-height: 120px;
+        resize: vertical;
+    }
+
+    .field-description {
+        font-size: 13px;
+        color: #6c757d;
+        margin-top: 6px;
+    }
+
+    .date-panel,
+    .image-panel {
+        background-color: #f8faff;
+        border: 1px solid #e3eaf5;
+        border-radius: 12px;
+        padding: 20px;
+        height: 100%;
+    }
+
+    .venue-panel {
+        background-color: #f8faff;
+        border: 1px solid #e3eaf5;
+        border-radius: 12px;
+        padding: 20px;
+        margin-top: 25px;
+    }
+
+    .image-panel {
+        height: auto;
+        margin-top: 25px;
+    }
+
+    .current-image-container {
+        margin-top: 15px;
+        padding: 15px;
+        background-color: #ffffff;
+        border: 1px solid #e1e7ef;
+        border-radius: 10px;
+    }
+
+    .current-image {
+        display: block;
+        width: 100%;
+        max-width: 360px;
+        max-height: 220px;
+        object-fit: cover;
+        border-radius: 10px;
+        border: 1px solid #dce4ee;
+        margin-top: 10px;
+    }
+
+    .no-image {
+        padding: 20px;
+        background-color: #f1f4f8;
+        border-radius: 8px;
+        color: #6c757d;
+        font-size: 14px;
+        margin-top: 12px;
+    }
+
+    .image-note {
+        display: flex;
+        align-items: flex-start;
+        gap: 8px;
+        margin-top: 10px;
+        font-size: 13px;
+        color: #6c757d;
+    }
+
+        .image-note i {
+            color: #0078d7;
+            margin-top: 2px;
+        }
+
+    .validation-summary:empty {
+        display: none;
+    }
+
+    .validation-summary {
+        background-color: #fff1f1;
+        border-left: 4px solid #dc3545;
+        border-radius: 8px;
+        padding: 12px 15px;
+        margin-bottom: 25px;
+        color: #9b2c2c;
+    }
+
+        .validation-summary ul {
+            margin-bottom: 0;
+            padding-left: 20px;
+        }
+
+    .text-danger {
+        font-size: 13px;
+    }
+
+    .button-section {
+        padding: 25px 35px;
+        background-color: #fafbfc;
+        border-top: 1px solid #edf0f4;
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+    }
+
+        .button-section .btn {
+            min-width: 130px;
+            padding: 10px 18px;
+            font-weight: 600;
+            border-radius: 8px;
+        }
+
+    @@media (max-width: 768px) {
+
+        .event-page {
+            margin: 25px auto;
+        }
+
+        .event-header,
+        .event-content,
+        .button-section {
+            padding: 25px 20px;
+        }
+
+        .button-section {
+            flex-direction: column;
+        }
+
+            .button-section .btn {
+                width: 100%;
+            }
+
+        .date-panel {
+            margin-top: 20px;
+        }
+
+        .current-image {
+            max-width: 100%;
+        }
+    }
+</style>
+
+
+<div class="event-page">
+
+    <div class="event-card">
+
+        <!-- Page Header -->
+        <div class="event-header">
+
+            <div class="event-icon">
+                <i class="bi bi-pencil-square"></i>
             </div>
 
-            <!-- Start Date -->
-            <div class="form-group">
-                <label asp-for="StartDate" class="control-label"></label>
-                <input asp-for="StartDate" class="form-control" type="datetime-local" />
-                <span asp-validation-for="StartDate" class="text-danger"></span>
+            <h1>Edit Event</h1>
+
+            <p>
+                Update the event information, schedule, venue, or event image.
+            </p>
+
+        </div>
+
+
+        <!-- Edit Form -->
+        <form asp-action="Edit"
+              method="post"
+              enctype="multipart/form-data">
+
+            <div class="event-content">
+
+                <!-- Validation Summary -->
+                <div asp-validation-summary="All"
+                     class="validation-summary">
+                </div>
+
+
+                <!-- Keep Event ID -->
+                <input type="hidden"
+                       asp-for="EventId" />
+
+
+                <!-- Event Information -->
+                <div class="section-title">
+                    Event Information
+                </div>
+
+
+                <!-- Event Name -->
+                <div class="mb-4">
+
+                    <label asp-for="EventName"
+                           class="form-label">
+                        Event Name
+                    </label>
+
+                    <input asp-for="EventName"
+                           class="form-control"
+                           placeholder="Enter event name" />
+
+                    <span asp-validation-for="EventName"
+                          class="text-danger">
+                    </span>
+
+                </div>
+
+
+                <!-- Description -->
+                <div class="mb-4">
+
+                    <label asp-for="Description"
+                           class="form-label">
+                        Description
+                    </label>
+
+                    <textarea asp-for="Description"
+                              class="form-control"
+                              placeholder="Enter event description"></textarea>
+
+                    <div class="field-description">
+                        Update the description to keep the event information clear and current.
+                    </div>
+
+                    <span asp-validation-for="Description"
+                          class="text-danger">
+                    </span>
+
+                </div>
+
+
+                <!-- Event Schedule -->
+                <div class="section-title mt-4">
+                    Event Schedule
+                </div>
+
+                <div class="row g-4">
+
+                    <!-- Start Date -->
+                    <div class="col-12 col-md-6">
+
+                        <div class="date-panel">
+
+                            <label asp-for="StartDate"
+                                   class="form-label">
+                                Start Date and Time
+                            </label>
+
+                            <input asp-for="StartDate"
+                                   class="form-control"
+                                   type="datetime-local" />
+
+                            <div class="field-description">
+                                Update when the event begins.
+                            </div>
+
+                            <span asp-validation-for="StartDate"
+                                  class="text-danger">
+                            </span>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- End Date -->
+                    <div class="col-12 col-md-6">
+
+                        <div class="date-panel">
+
+                            <label asp-for="EndDate"
+                                   class="form-label">
+                                End Date and Time
+                            </label>
+
+                            <input asp-for="EndDate"
+                                   class="form-control"
+                                   type="datetime-local" />
+
+                            <div class="field-description">
+                                Update when the event ends.
+                            </div>
+
+                            <span asp-validation-for="EndDate"
+                                  class="text-danger">
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Venue Assignment -->
+                <div class="venue-panel">
+
+                    <div class="section-title mb-3">
+                        Venue Assignment
+                    </div>
+
+                    <label asp-for="VenueId"
+                           class="form-label">
+                        Venue
+                    </label>
+
+                    <select asp-for="VenueId"
+                            class="form-select"
+                            asp-items="ViewBag.VenueId">
+                    </select>
+
+                    <div class="field-description">
+                        Select the venue where this event will take place.
+                    </div>
+
+                    <span asp-validation-for="VenueId"
+                          class="text-danger">
+                    </span>
+
+                </div>
+
+
+                <!-- Event Image -->
+                <div class="image-panel">
+
+                    <div class="section-title mb-3">
+                        <i class="bi bi-image me-2"></i>
+                        Event Image
+                    </div>
+
+                    <label for="imageFile"
+                           class="form-label">
+                        Upload a New Event Image
+                    </label>
+
+                    <input type="file"
+                           id="imageFile"
+                           name="imageFile"
+                           class="form-control"
+                           accept=".jpg,.jpeg,.png,.gif,.webp,image/jpeg,image/png,image/gif,image/webp" />
+
+                    <div class="field-description">
+                        Select a new image only if you want to replace the current event image.
+                    </div>
+
+                    <div class="image-note">
+                        <i class="bi bi-cloud-arrow-up"></i>
+                        <span>
+                            Images are securely stored in Azure Blob Storage.
+                            Maximum file size: 5 MB.
+                            Supported formats: JPG, JPEG, PNG, GIF and WEBP.
+                        </span>
+                    </div>
+
+
+                    <!-- Current Image -->
+                    <div class="current-image-container">
+
+                        <strong>
+                            Current Event Image
+                        </strong>
+
+                        @if (!string.IsNullOrWhiteSpace(Model.ImageUrl))
+                        {
+                            <img src="@Model.ImageUrl"
+                                 alt="@Model.EventName"
+                                 class="current-image" />
+                        }
+                        else
+                        {
+                            <div class="no-image">
+                                <i class="bi bi-image me-2"></i>
+                                No image has been uploaded for this event yet.
+                            </div>
+                        }
+
+                    </div>
+
+                </div>
+
             </div>
 
-            <!-- End Date -->
-            <div class="form-group">
-                <label asp-for="EndDate" class="control-label"></label>
-                <input asp-for="EndDate" class="form-control" type="datetime-local" />
-                <span asp-validation-for="EndDate" class="text-danger"></span>
+
+            <!-- Buttons -->
+            <div class="button-section">
+
+                <a asp-action="Index"
+                   class="btn btn-outline-secondary">
+                    Cancel
+                </a>
+
+                <button type="submit"
+                        class="btn btn-primary">
+                    <i class="bi bi-check-circle me-2"></i>
+                    Save Changes
+                </button>
+
             </div>
 
-            <!-- Description -->
-            <div class="form-group">
-                <label asp-for="Description" class="control-label"></label>
-                <input asp-for="Description" class="form-control" />
-                <span asp-validation-for="Description" class="text-danger"></span>
-            </div>
-
-            <!-- Venue Dropdown -->
-            <div class="form-group">
-                <label asp-for="VenueId" class="control-label"></label>
-                <select asp-for="VenueId" class="form-control" asp-items="ViewBag.VenueId"></select>
-                <span asp-validation-for="VenueId" class="text-danger"></span>
-            </div>
-
-            <!-- Save Button -->
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
-            </div>
         </form>
+
     </div>
+
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
 
 @section Scripts {
+
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+
+            const startDate =
+                document.getElementById("StartDate");
+
+            const endDate =
+                document.getElementById("EndDate");
+
+            if (!startDate || !endDate) {
+                return;
+            }
+
+            function validateDates() {
+
+                if (startDate.value && endDate.value) {
+
+                    if (new Date(endDate.value) < new Date(startDate.value)) {
+
+                        endDate.setCustomValidity(
+                            "The event end date and time must be after the start date and time."
+                        );
+
+                    }
+                    else {
+
+                        endDate.setCustomValidity("");
+
+                    }
+                }
+                else {
+
+                    endDate.setCustomValidity("");
+
+                }
+            }
+
+            startDate.addEventListener(
+                "change",
+                validateDates
+            );
+
+            endDate.addEventListener(
+                "change",
+                validateDates
+            );
+
+            validateDates();
+
+        });
+    </script>
+
 }

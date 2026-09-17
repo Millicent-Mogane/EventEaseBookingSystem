@@ -1,45 +1,426 @@
 ﻿@model EventEaseBookingSystem.Models.Venue
 
 @{
-    ViewData["Title"] = "Delete";
+    ViewData["Title"] = "Delete Venue";
 }
 
-<h1>Delete</h1>
+<style>
+    body {
+        background: linear-gradient(to bottom right, #e6f0ff, #f8f9fa);
+        font-family: 'Segoe UI', Arial, sans-serif;
+        color: #333;
+    }
 
-<h3>Are you sure you want to delete this?</h3>
-<div>
-    <h4>Venue</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.VenueName)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.VenueName)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Location)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Location)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Capacity)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Capacity)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.ImageUrl)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.ImageUrl)
-        </dd>
-    </dl>
-    
-    <form asp-action="Delete">
-        <input type="hidden" asp-for="VenueId" />
-        <input type="submit" value="Delete" class="btn btn-danger" /> |
-        <a asp-action="Index">Back to List</a>
-    </form>
+    .delete-page {
+        max-width: 950px;
+        margin: 50px auto;
+        padding: 0 20px;
+    }
+
+    .delete-card {
+        background: rgba(255, 255, 255, 0.97);
+        border-radius: 16px;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.10);
+        overflow: hidden;
+    }
+
+    .delete-header {
+        background: linear-gradient(to right, #fff5f5, #ffffff);
+        border-bottom: 1px solid #f1d5d5;
+        padding: 30px 35px;
+    }
+
+    .delete-icon {
+        width: 58px;
+        height: 58px;
+        border-radius: 50%;
+        background-color: #f8d7da;
+        color: #dc3545;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 27px;
+        font-weight: bold;
+        margin-bottom: 15px;
+    }
+
+    .delete-header h1 {
+        font-weight: 700;
+        margin-bottom: 8px;
+        color: #343a40;
+    }
+
+    .delete-header p {
+        margin-bottom: 0;
+        color: #6c757d;
+    }
+
+    .warning-box {
+        margin: 25px 35px 0;
+        padding: 16px 20px;
+        border-radius: 10px;
+        background-color: #fff3cd;
+        border: 1px solid #ffe69c;
+        color: #664d03;
+    }
+
+        .warning-box strong {
+            color: #664d03;
+        }
+
+    .venue-content {
+        padding: 30px 35px 35px;
+    }
+
+    .section-title {
+        font-size: 18px;
+        font-weight: 600;
+        color: #005a9e;
+        margin-bottom: 20px;
+    }
+
+    .information-row {
+        padding: 14px 0;
+        border-bottom: 1px solid #edf0f4;
+    }
+
+        .information-row:last-child {
+            border-bottom: none;
+        }
+
+    .information-label {
+        font-weight: 600;
+        color: #495057;
+    }
+
+    .information-value {
+        color: #333;
+    }
+
+    .venue-image-panel {
+        background-color: #f8faff;
+        border: 1px solid #e3eaf5;
+        border-radius: 12px;
+        padding: 20px;
+        text-align: center;
+        height: 100%;
+    }
+
+        .venue-image-panel img {
+            width: 100%;
+            max-width: 360px;
+            height: 240px;
+            object-fit: cover;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.10);
+        }
+
+    .no-image {
+        width: 100%;
+        height: 240px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #e9ecef;
+        color: #6c757d;
+        border-radius: 10px;
+    }
+
+    .delete-actions {
+        padding: 25px 35px;
+        background-color: #fafbfc;
+        border-top: 1px solid #edf0f4;
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+    }
+
+        .delete-actions .btn {
+            min-width: 130px;
+            padding: 10px 18px;
+            font-weight: 600;
+            border-radius: 8px;
+        }
+
+        .delete-actions .btn-danger {
+            background-color: #dc3545;
+            border-color: #dc3545;
+        }
+
+            .delete-actions .btn-danger:hover {
+                background-color: #bb2d3b;
+                border-color: #b02a37;
+            }
+
+    .validation-alert {
+        margin: 25px 35px 0;
+    }
+
+    @@media (max-width: 768px) {
+
+        .delete-page {
+            margin: 25px auto;
+        }
+
+        .delete-header,
+        .venue-content,
+        .delete-actions {
+            padding: 25px 20px;
+        }
+
+        .warning-box,
+        .validation-alert {
+            margin-left: 20px;
+            margin-right: 20px;
+        }
+
+        .delete-actions {
+            flex-direction: column;
+        }
+
+            .delete-actions .btn {
+                width: 100%;
+            }
+
+        .venue-image-panel {
+            margin-top: 25px;
+        }
+    }
+</style>
+
+
+<div class="delete-page">
+
+    <div class="delete-card">
+
+        <!-- Page Header -->
+        <div class="delete-header">
+
+            <div class="delete-icon">
+                !
+            </div>
+
+            <h1>Delete Venue</h1>
+
+            <p>
+                Please review the venue information before confirming deletion.
+            </p>
+
+        </div>
+
+
+        <!-- Warning -->
+        <div class="warning-box">
+
+            <strong>Are you sure you want to delete this venue?</strong>
+
+            <div class="mt-1">
+                This action permanently removes the venue from the system.
+                If the venue has an existing booking, the deletion will be blocked.
+            </div>
+
+        </div>
+
+
+        <!-- Validation Error -->
+        @if (!ViewData.ModelState.IsValid)
+        {
+            <div class="alert alert-danger alert-dismissible fade show validation-alert"
+                 role="alert"
+                 id="errorAlert">
+
+                <strong>Unable to complete the request.</strong>
+
+                <div class="mt-1">
+
+                    @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                    {
+                        <div>
+                            @error.ErrorMessage
+                        </div>
+                    }
+
+                </div>
+
+                <button type="button"
+                        class="btn-close"
+                        data-bs-dismiss="alert"
+                        aria-label="Close">
+                </button>
+
+            </div>
+        }
+
+
+        <!-- Venue Information -->
+        <div class="venue-content">
+
+            <div class="row g-4">
+
+                <!-- Information -->
+                <div class="col-12 col-lg-7">
+
+                    <div class="section-title">
+                        Venue Information
+                    </div>
+
+                    <div class="information-row row">
+
+                        <div class="col-sm-5 information-label">
+                            Venue Name
+                        </div>
+
+                        <div class="col-sm-7 information-value">
+                            @Model.VenueName
+                        </div>
+
+                    </div>
+
+
+                    <div class="information-row row">
+
+                        <div class="col-sm-5 information-label">
+                            Location
+                        </div>
+
+                        <div class="col-sm-7 information-value">
+                            @Model.Location
+                        </div>
+
+                    </div>
+
+
+                    <div class="information-row row">
+
+                        <div class="col-sm-5 information-label">
+                            Capacity
+                        </div>
+
+                        <div class="col-sm-7 information-value">
+                            @Model.Capacity people
+                        </div>
+
+                    </div>
+
+
+                    <div class="information-row row">
+
+                        <div class="col-sm-5 information-label">
+                            Hourly Rate
+                        </div>
+
+                        <div class="col-sm-7 information-value">
+                            R @Model.HourlyRate.ToString("N2")
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Venue Image -->
+                <div class="col-12 col-lg-5">
+
+                    <div class="venue-image-panel">
+
+                        <div class="section-title mb-3">
+                            Venue Image
+                        </div>
+
+                        @if (!string.IsNullOrWhiteSpace(Model.ImageUrl))
+                        {
+                            <a href="@Model.ImageUrl"
+                               target="_blank">
+
+                                <img src="@Model.ImageUrl"
+                                     alt="@Model.VenueName" />
+
+                            </a>
+
+                            <p class="text-muted small mt-3 mb-0">
+                                Click the image to view it in full size.
+                            </p>
+                        }
+                        else
+                        {
+                            <div class="no-image">
+                                No image available
+                            </div>
+                        }
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- Actions -->
+        <form asp-action="Delete"
+              method="post">
+
+            <input type="hidden"
+                   asp-for="VenueId" />
+
+            @Html.AntiForgeryToken()
+
+            <div class="delete-actions">
+
+                <a asp-action="Index"
+                   class="btn btn-outline-secondary">
+                    Cancel
+                </a>
+
+                <button type="submit"
+                        class="btn btn-danger">
+                    Delete Venue
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
 </div>
+
+
+@section Scripts {
+
+    <script>
+
+        document.addEventListener('DOMContentLoaded', function () {
+
+            var errorAlert =
+                document.getElementById('errorAlert');
+
+            if (errorAlert) {
+
+                setTimeout(function () {
+
+                    errorAlert.style.transition =
+                        "opacity 0.5s ease, transform 0.5s ease";
+
+                    errorAlert.style.opacity = "0";
+
+                    errorAlert.style.transform =
+                        "translateY(-20px)";
+
+                    setTimeout(function () {
+
+                        if (errorAlert) {
+                            errorAlert.remove();
+                        }
+
+                    }, 500);
+
+                }, 5000);
+            }
+
+        });
+
+    </script>
+
+}
